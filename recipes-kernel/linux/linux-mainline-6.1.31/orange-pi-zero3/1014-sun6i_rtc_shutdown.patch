@@ -1,0 +1,47 @@
+From c2e97e2ed99e09c30eff4b871b44790b9a6fbe2a Mon Sep 17 00:00:00 2001
+From: Electric Worry <electricworry@users.noreply.github.com>
+Date: Thu, 16 Nov 2023 12:47:13 +0000
+Subject: [PATCH 14/19] sun6i_rtc_shutdown
+
+---
+ drivers/rtc/rtc-sun6i.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
+index 7038f47d7..19b924d85 100644
+--- a/drivers/rtc/rtc-sun6i.c
++++ b/drivers/rtc/rtc-sun6i.c
+@@ -721,7 +721,7 @@ static int sun6i_rtc_suspend(struct device *dev)
+ }
+ 
+ /* Disable IRQ wake on resume. */
+-static int sun6i_rtc_resume(struct device *dev)
++static int __maybe_unused sun6i_rtc_resume(struct device *dev)
+ {
+ 	struct sun6i_rtc_dev *chip = dev_get_drvdata(dev);
+ 
+@@ -851,6 +851,13 @@ static int sun6i_rtc_probe(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
++static void sun6i_rtc_shutdown(struct platform_device *pdev)
++{
++#ifdef CONFIG_PM_SLEEP
++	sun6i_rtc_suspend(&pdev->dev);
++#endif
++}
++
+ /*
+  * As far as RTC functionality goes, all models are the same. The
+  * datasheets claim that different models have different number of
+@@ -875,6 +882,7 @@ MODULE_DEVICE_TABLE(of, sun6i_rtc_dt_ids);
+ 
+ static struct platform_driver sun6i_rtc_driver = {
+ 	.probe		= sun6i_rtc_probe,
++	.shutdown	= sun6i_rtc_shutdown,
+ 	.driver		= {
+ 		.name		= "sun6i-rtc",
+ 		.of_match_table = sun6i_rtc_dt_ids,
+-- 
+2.34.1
+

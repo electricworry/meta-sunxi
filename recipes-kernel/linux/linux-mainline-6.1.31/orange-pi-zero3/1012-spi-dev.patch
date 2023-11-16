@@ -1,0 +1,37 @@
+From 47d05a4338242bc1acb228eb8cdc8c054a7f5ff1 Mon Sep 17 00:00:00 2001
+From: Electric Worry <electricworry@users.noreply.github.com>
+Date: Thu, 16 Nov 2023 12:46:25 +0000
+Subject: [PATCH 12/19] spi-dev
+
+---
+ drivers/spi/spidev.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/spi/spidev.c b/drivers/spi/spidev.c
+index 71c3db60e..5bce0e926 100644
+--- a/drivers/spi/spidev.c
++++ b/drivers/spi/spidev.c
+@@ -692,6 +692,7 @@ static const struct file_operations spidev_fops = {
+ static struct class *spidev_class;
+ 
+ static const struct spi_device_id spidev_spi_ids[] = {
++	{ .name = "spi-dev" },
+ 	{ .name = "dh2228fv" },
+ 	{ .name = "ltc2488" },
+ 	{ .name = "sx1301" },
+@@ -714,10 +715,12 @@ static int spidev_of_check(struct device *dev)
+ 		return 0;
+ 
+ 	dev_err(dev, "spidev listed directly in DT is not supported\n");
++	dev_info(dev, "Use a compatible alias string like spi-dev in DT\n");
+ 	return -EINVAL;
+ }
+ 
+ static const struct of_device_id spidev_dt_ids[] = {
++	{ .compatible = "orangepi,spi-dev", .data = &spidev_of_check },
+ 	{ .compatible = "rohm,dh2228fv", .data = &spidev_of_check },
+ 	{ .compatible = "lineartechnology,ltc2488", .data = &spidev_of_check },
+ 	{ .compatible = "semtech,sx1301", .data = &spidev_of_check },
+-- 
+2.34.1
+

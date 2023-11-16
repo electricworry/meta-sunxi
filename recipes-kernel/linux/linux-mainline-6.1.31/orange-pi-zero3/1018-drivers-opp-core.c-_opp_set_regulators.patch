@@ -1,0 +1,28 @@
+From 933f5bb13a25481af677feceff611c3ece209ce4 Mon Sep 17 00:00:00 2001
+From: Electric Worry <electricworry@users.noreply.github.com>
+Date: Thu, 16 Nov 2023 12:49:54 +0000
+Subject: [PATCH 18/19] drivers/opp/core.c:_opp_set_regulators
+
+---
+ drivers/opp/core.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/drivers/opp/core.c b/drivers/opp/core.c
+index e87567dbe..106ce7068 100644
+--- a/drivers/opp/core.c
++++ b/drivers/opp/core.c
+@@ -2095,6 +2095,11 @@ static int _opp_set_regulators(struct opp_table *opp_table, struct device *dev,
+ 	for (i = 0; i < count; i++) {
+ 		reg = regulator_get_optional(dev, names[i]);
+ 		if (IS_ERR(reg)) {
++			if (PTR_ERR(reg) == -ENODEV) {
++				ret = -ENODEV;
++				goto free_regulators;
++			}
++
+ 			ret = dev_err_probe(dev, PTR_ERR(reg),
+ 					    "%s: no regulator (%s) found\n",
+ 					    __func__, names[i]);
+-- 
+2.34.1
+

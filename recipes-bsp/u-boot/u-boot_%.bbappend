@@ -15,7 +15,14 @@ SRC_URI:append:sunxi = " \
         file://0001-nanopi_neo_air_defconfig-Enable-eMMC-support.patch \
 	file://0002-Added-nanopi-r1-board-support.patch \
 	file://0003-sunxi-H6-Enable-Ethernet-on-Orange-Pi-One-Plus.patch \
+        file://0004-Add-Orange-Pi-Zero-3-support.patch \
+        file://0005-The-bit-16-of-register-reg-0x03000000-must-be-zero-f.patch \
         file://boot.cmd \
+"
+
+# The orange-pi-zero3 needs a modified u-boot boot.cmd, based on UUID
+SRC_URI:append:orange-pi-zero3 = " \
+        file://boot-orange-pi-zero3.cmd \
 "
 
 UBOOT_ENV_SUFFIX:sunxi = "scr"
@@ -28,4 +35,9 @@ do_compile:sun50i[depends] += "trusted-firmware-a:do_deploy"
 
 do_compile:append:sunxi() {
     ${B}/tools/mkimage -C none -A arm -T script -d ${WORKDIR}/boot.cmd ${WORKDIR}/${UBOOT_ENV_BINARY}
+}
+
+# Process the alternative u-boot boot.cmd, only for orange-pi-zero3
+do_compile:append:orange-pi-zero3() {
+    ${B}/tools/mkimage -C none -A arm -T script -d ${WORKDIR}/boot-orange-pi-zero3.cmd ${WORKDIR}/${UBOOT_ENV_BINARY}
 }

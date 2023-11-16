@@ -1,0 +1,33 @@
+From 2ce021d863f82341a34b92518d6543e91d21d27c Mon Sep 17 00:00:00 2001
+From: Electric Worry <electricworry@users.noreply.github.com>
+Date: Mon, 13 Nov 2023 19:00:38 +0000
+Subject: [PATCH] The bit[16] of register reg[0x03000000] must be zero for the
+ THS driver to work properly in the kernel.
+
+Upstream-Status: Pending
+
+---
+ board/sunxi/board.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/board/sunxi/board.c b/board/sunxi/board.c
+index 8fe1775b01..bf39b3fda1 100644
+--- a/board/sunxi/board.c
++++ b/board/sunxi/board.c
+@@ -247,6 +247,16 @@ int board_init(void)
+ 		}
+ 	}
+ 
++#if CONFIG_MACH_SUN50I_H616
++	/*
++	 * The bit[16] of register reg[0x03000000] must be zero for the THS
++	 * driver to work properly in the kernel. The BSP u-boot is putting
++	 * the whole register to zero so we are doing the same.
++	 */
++	writel(0x0, SUNXI_SRAMC_BASE);
++	writel(0x0, 0x07010254);
++#endif
++
+ #if CONFIG_IS_ENABLED(DM_I2C)
+ 	/*
+ 	 * Temporary workaround for enabling I2C clocks until proper sunxi DM
