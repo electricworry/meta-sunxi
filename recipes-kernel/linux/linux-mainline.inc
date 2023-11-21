@@ -19,8 +19,9 @@ python() {
     major, minor = kernel_version()
     if major >= 6 and minor >= 5:
         dt = d.getVar('KERNEL_DEVICETREE', True)
-        dt = "allwinner/{0}".format(dt)
-        d.setVar('KERNEL_DEVICETREE', dt)
+        if not "allwinner" in dt:
+            dt = "allwinner/{0}".format(dt)
+            d.setVar('KERNEL_DEVICETREE', dt)
         d.setVar('KERNEL_DTB_PREFIX', "1")
 }
 
