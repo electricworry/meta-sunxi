@@ -20,6 +20,7 @@ UBOOT_LOADADDRESS ?= "0x400080OB00"
 
 #UBOOT_BINARY ?= "u-boot.itb"
 SPL_BINARY ?= "u-boot-sunxi-with-spl.bin"
+WKS_DISK ?= "mmcblk0"
 
 SERIAL_CONSOLES ?= "115200;ttyS0"
 MACHINE_FEATURES ?= "alsa apm keyboard rtc serial screen usbgadget usbhost vfat"
