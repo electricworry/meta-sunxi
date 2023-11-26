@@ -20,6 +20,7 @@ UBOOT_LOADADDRESS ?= "0x400080OB00"
 
 #UBOOT_BINARY ?= "u-boot.itb"
 SPL_BINARY ?= "u-boot-sunxi-with-spl.bin"
+WKS_DISK ?= "mmcblk0"
 
 SERIAL_CONSOLES ?= "115200;ttyS0"
 MACHINE_FEATURES ?= "alsa apm keyboard rtc serial screen usbgadget usbhost vfat"
@@ -40,7 +41,6 @@ do_fix_device_tree_location() {
         fi
     done
 }
-
 
 addtask do_fix_device_tree_location after do_write_wks_template before do_image_wic
 

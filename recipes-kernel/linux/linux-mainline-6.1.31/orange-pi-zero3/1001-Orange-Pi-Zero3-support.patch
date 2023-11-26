@@ -1,0 +1,4864 @@
+From e0080eb65da46f01f567c241fdbb2c60d3fd1a60 Mon Sep 17 00:00:00 2001
+From: Electric Worry <electricworry@users.noreply.github.com>
+Date: Sun, 12 Nov 2023 16:10:38 +0000
+Subject: [PATCH 01/19] Orange Pi Zero3 Support
+
+---
+ .../bindings/mfd/x-powers,axp152.yaml         |    1 +
+ arch/arm64/boot/dts/allwinner/Makefile        |    3 +
+ .../arm64/boot/dts/allwinner/overlay/Makefile |   38 +
+ .../overlay/sun50i-h616-disable-leds.dts      |   20 +
+ .../overlay/sun50i-h616-disable-uart0.dts     |   11 +
+ .../allwinner/overlay/sun50i-h616-fixup.scr   |  Bin 0 -> 4203 bytes
+ .../overlay/sun50i-h616-fixup.scr-cmd         |  110 ++
+ .../dts/allwinner/overlay/sun50i-h616-gpu.dts |   11 +
+ .../dts/allwinner/overlay/sun50i-h616-ir.dts  |   13 +
+ .../allwinner/overlay/sun50i-h616-ph-i2c1.dts |   28 +
+ .../allwinner/overlay/sun50i-h616-ph-i2c2.dts |   20 +
+ .../allwinner/overlay/sun50i-h616-ph-i2c3.dts |   20 +
+ .../allwinner/overlay/sun50i-h616-ph-i2c4.dts |   20 +
+ .../overlay/sun50i-h616-ph-pwm12.dts          |   11 +
+ .../overlay/sun50i-h616-ph-pwm34.dts          |   18 +
+ .../overlay/sun50i-h616-ph-uart2.dts          |   20 +
+ .../overlay/sun50i-h616-ph-uart5.dts          |   20 +
+ .../allwinner/overlay/sun50i-h616-pi-i2c0.dts |   30 +
+ .../allwinner/overlay/sun50i-h616-pi-i2c1.dts |   13 +
+ .../allwinner/overlay/sun50i-h616-pi-i2c2.dts |   22 +
+ .../allwinner/overlay/sun50i-h616-pi-pwm1.dts |   19 +
+ .../allwinner/overlay/sun50i-h616-pi-pwm2.dts |   19 +
+ .../allwinner/overlay/sun50i-h616-pi-pwm3.dts |   19 +
+ .../allwinner/overlay/sun50i-h616-pi-pwm4.dts |   19 +
+ .../overlay/sun50i-h616-pi-uart2.dts          |   20 +
+ .../overlay/sun50i-h616-pi-uart3.dts          |   20 +
+ .../overlay/sun50i-h616-pi-uart4.dts          |   20 +
+ .../overlay/sun50i-h616-spi0-spidev.dts       |   34 +
+ .../sun50i-h616-spi1-cs0-cs1-spidev.dts       |   37 +
+ .../overlay/sun50i-h616-spi1-cs0-spidev.dts   |   29 +
+ .../overlay/sun50i-h616-spi1-cs1-spidev.dts   |   29 +
+ .../overlay/sun50i-h616-usb0-host.dts         |   33 +
+ .../sun50i-h616-zero2w-disable-led.dts        |   16 +
+ .../dts/allwinner/sun50i-h616-cpu-opp.dtsi    |  117 ++
+ .../allwinner/sun50i-h618-orangepi-zero3.dts  |  376 ++++++
+ .../arm64/boot/dts/allwinner/sun50i-h616.dtsi |  834 +++++++++++-
+ drivers/mfd/Kconfig                           |    9 +
+ drivers/mfd/Makefile                          |    1 +
+ drivers/mfd/axp20x-i2c.c                      |    2 +
+ drivers/mfd/axp20x.c                          |   91 +-
+ drivers/mfd/sunxi-ac200.c                     |  286 ++++
+ drivers/pwm/Kconfig                           |    9 +
+ drivers/pwm/Makefile                          |    1 +
+ drivers/pwm/pwm-sunxi-enhance.c               | 1194 +++++++++++++++++
+ drivers/pwm/pwm-sunxi-enhance.h               |   60 +
+ drivers/regulator/axp20x-regulator.c          |   60 +
+ include/linux/mfd/ac200.h                     |  213 +++
+ include/linux/mfd/axp20x.h                    |   34 +
+ 48 files changed, 4003 insertions(+), 27 deletions(-)
+ create mode 100755 arch/arm64/boot/dts/allwinner/overlay/Makefile
+ create mode 100755 arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-disable-leds.dts
+ create mode 100755 arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-disable-uart0.dts
+ create mode 100755 arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-fixup.scr
+ create mode 100755 arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-fixup.scr-cmd
+ create mode 100755 arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-gpu.dts
+ create mode 100755 arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-ir.dts
+ create mode 100755 arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-ph-i2c1.dts
+ create mode 100755 arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-ph-i2c2.dts
+ create mode 100755 arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-ph-i2c3.dts
+ create mode 100755 arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-ph-i2c4.dts
+ create mode 100755 arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-ph-pwm12.dts
+ create mode 100755 arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-ph-pwm34.dts
+ create mode 100755 arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-ph-uart2.dts
+ create mode 100755 arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-ph-uart5.dts
+ create mode 100755 arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-pi-i2c0.dts
+ create mode 100755 arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-pi-i2c1.dts
+ create mode 100755 arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-pi-i2c2.dts
+ create mode 100755 arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-pi-pwm1.dts
+ create mode 100755 arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-pi-pwm2.dts
+ create mode 100755 arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-pi-pwm3.dts
+ create mode 100755 arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-pi-pwm4.dts
+ create mode 100755 arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-pi-uart2.dts
+ create mode 100755 arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-pi-uart3.dts
+ create mode 100755 arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-pi-uart4.dts
+ create mode 100755 arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-spi0-spidev.dts
+ create mode 100755 arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-spi1-cs0-cs1-spidev.dts
+ create mode 100755 arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-spi1-cs0-spidev.dts
+ create mode 100755 arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-spi1-cs1-spidev.dts
+ create mode 100755 arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-usb0-host.dts
+ create mode 100755 arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-zero2w-disable-led.dts
+ create mode 100644 arch/arm64/boot/dts/allwinner/sun50i-h616-cpu-opp.dtsi
+ create mode 100755 arch/arm64/boot/dts/allwinner/sun50i-h618-orangepi-zero3.dts
+ mode change 100644 => 100755 arch/arm64/boot/dts/allwinner/sun50i-h616.dtsi
+ create mode 100644 drivers/mfd/sunxi-ac200.c
+ create mode 100644 drivers/pwm/pwm-sunxi-enhance.c
+ create mode 100644 drivers/pwm/pwm-sunxi-enhance.h
+ create mode 100644 include/linux/mfd/ac200.h
+
+diff --git a/Documentation/devicetree/bindings/mfd/x-powers,axp152.yaml b/Documentation/devicetree/bindings/mfd/x-powers,axp152.yaml
+index b7a8747d5..e2241cd28 100644
+--- a/Documentation/devicetree/bindings/mfd/x-powers,axp152.yaml
++++ b/Documentation/devicetree/bindings/mfd/x-powers,axp152.yaml
+@@ -88,6 +88,7 @@ properties:
+           - x-powers,axp209
+           - x-powers,axp221
+           - x-powers,axp223
++          - x-powers,axp313a
+           - x-powers,axp803
+           - x-powers,axp806
+           - x-powers,axp809
+diff --git a/arch/arm64/boot/dts/allwinner/Makefile b/arch/arm64/boot/dts/allwinner/Makefile
+index 6a96494a2..a6a0f1dd0 100644
+--- a/arch/arm64/boot/dts/allwinner/Makefile
++++ b/arch/arm64/boot/dts/allwinner/Makefile
+@@ -39,4 +39,7 @@ dtb-$(CONFIG_ARCH_SUNXI) += sun50i-h6-pine-h64-model-b.dtb
+ dtb-$(CONFIG_ARCH_SUNXI) += sun50i-h6-tanix-tx6.dtb
+ dtb-$(CONFIG_ARCH_SUNXI) += sun50i-h6-tanix-tx6-mini.dtb
+ dtb-$(CONFIG_ARCH_SUNXI) += sun50i-h616-orangepi-zero2.dtb
++dtb-$(CONFIG_ARCH_SUNXI) += sun50i-h618-orangepi-zero3.dtb
+ dtb-$(CONFIG_ARCH_SUNXI) += sun50i-h616-x96-mate.dtb
++
++subdir-y        := $(dts-dirs) overlay
+diff --git a/arch/arm64/boot/dts/allwinner/overlay/Makefile b/arch/arm64/boot/dts/allwinner/overlay/Makefile
+new file mode 100755
+index 000000000..f7913a997
+--- /dev/null
++++ b/arch/arm64/boot/dts/allwinner/overlay/Makefile
+@@ -0,0 +1,38 @@
++# SPDX-License-Identifier: GPL-2.0
++dtbo-$(CONFIG_ARCH_SUNXI) += \
++	sun50i-h616-ir.dtbo \
++	sun50i-h616-gpu.dtbo \
++	sun50i-h616-ph-uart2.dtbo \
++	sun50i-h616-ph-uart5.dtbo \
++	sun50i-h616-ph-i2c1.dtbo \
++	sun50i-h616-ph-i2c2.dtbo \
++	sun50i-h616-ph-i2c3.dtbo \
++	sun50i-h616-ph-i2c4.dtbo \
++	sun50i-h616-ph-pwm12.dtbo \
++	sun50i-h616-ph-pwm34.dtbo \
++	sun50i-h616-usb0-host.dtbo \
++	sun50i-h616-spi0-spidev.dtbo \
++	sun50i-h616-spi1-cs0-spidev.dtbo \
++	sun50i-h616-spi1-cs1-spidev.dtbo \
++	sun50i-h616-spi1-cs0-cs1-spidev.dtbo \
++	sun50i-h616-disable-leds.dtbo \
++	sun50i-h616-disable-uart0.dtbo \
++	sun50i-h616-zero2w-disable-led.dtbo \
++	sun50i-h616-pi-i2c0.dtbo \
++	sun50i-h616-pi-i2c1.dtbo \
++	sun50i-h616-pi-i2c2.dtbo \
++	sun50i-h616-pi-pwm1.dtbo \
++	sun50i-h616-pi-pwm2.dtbo \
++	sun50i-h616-pi-pwm3.dtbo \
++	sun50i-h616-pi-pwm4.dtbo \
++	sun50i-h616-pi-uart2.dtbo \
++	sun50i-h616-pi-uart3.dtbo \
++	sun50i-h616-pi-uart4.dtbo
++
++scr-$(CONFIG_ARCH_SUNXI) += \
++	sun50i-h616-fixup.scr
++
++targets += $(dtbo-y) $(scr-y) $(dtbotxt-y)
++
++always		:= $(dtbo-y) $(scr-y) $(dtbotxt-y)
++clean-files	:= *.dtbo *.scr
+diff --git a/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-disable-leds.dts b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-disable-leds.dts
+new file mode 100755
+index 000000000..115d2901f
+--- /dev/null
++++ b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-disable-leds.dts
+@@ -0,0 +1,20 @@
++/dts-v1/;
++/plugin/;
++
++/ {
++	fragment@0 {
++		target = <&leds>;
++
++		__overlay__ {
++			status = "okay";
++
++			led-red {
++				linux,default-trigger = "none";
++			};
++
++			led-green {
++				linux,default-trigger = "none";
++			};
++		};
++	};
++};
+diff --git a/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-disable-uart0.dts b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-disable-uart0.dts
+new file mode 100755
+index 000000000..3c827cac9
+--- /dev/null
++++ b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-disable-uart0.dts
+@@ -0,0 +1,11 @@
++/dts-v1/;
++/plugin/;
++
++/ {
++	fragment@0 {
++		target = <&uart0>;
++		 __overlay__ {
++			status = "disabled";
++		};
++	};
++};
+diff --git a/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-fixup.scr b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-fixup.scr
+new file mode 100755
+index 0000000000000000000000000000000000000000..4cd5ac726f87cc5321e4a1c761a3a349d02cf0eb
+GIT binary patch
+literal 4203
+zcmc&$&2HO95cVYn#8XZMdK=J2Y$G8=N=_TpN#P(xlN<^J2+&*v5G!&i5vG>R?ozT~
+z3w?yXKyQ7TzC>T3w?08<_$QK~6sd9%T_lP#-_Fc8^X;5I_~w`2{`}`}|JT2MKRSB&
+z_^9{<$;Uq)eEn7VxaIrdF}*y7c+O?SmI{LKCQU$jGEB5_4B;$^_>2p!;4GFPnVxb9
+zDjh2w>Qr-eUb+I4lQg#sQsL<^7Ay+&5<yZGiV39FIF5Azjek4=F6N<(1v$Z-$&igB
+zu7C+2%)r+sc=2q8PX<CLuK7(O0Z-H}+QP}Lo+a*>iR%?u@DfcHvAk9gi)aY}hC1ap
+zAkx{GOAP&`_0zdw5QvzA&k;C@6?c<Rz-a|t;8Av9zB_w$_xkS5-P`lg$bW2tIT|_U
+zWd@POfyU&W+m1%>&&ce&vZFY`tOaSp3ou`q@aR#N3x-j~4}(ji+x&H>`M0MV%-?jH
+zf42$!ZKwIOOT!3*tj=HwN+DsA&0K}q#*)6=ajI74C158AqgO`WZAD4j?Q;kt!A1fT
+ze_cJb9UDL9E>O;Ap$H41uzje^&{wh7&siu>U4ha}rwYvYnk_$L+efb;VrqJ2x81fB
+zX~u5cK=P04Ds2s@aYzzc=x&jF%7wQC^LdMc3jGHPJ~Vn|Bwbv2NEMNQy;~5rb10He
+z@NlO*C7+xKM=0yuvYZA+u&H5uKHs5X8dirj%qLJ^q+u|M9h-&Xt?1mHq3nR|jnY6a
+zDeP(#G9)hlL!(d_2R2EPD3a0jpcE2aX=ByXm8H?E*^mTxnaET$Wxgc|=;vt}T@7t}
+zjEd1O&=uedREBcmYKM}dOi)qgEK2hUNTzr<MLgG-79bQaYsVrMipV4hV>|$7no=yR
+zR*l=Nc!gB~o0w}29;IBBrv}m(#6|`Iiz2*lUG7hKTMa6q%)?_!ajC7s!y=CimoC%*
+z@Z^)*a#L7cf*&`;C&<B*#cX)7Zsvk5y8CfMP_Ez$FfpwjVd6hIYWccA?bSsMjdEl!
+z7AlVT3$2&$?I(`&bbw-C=~}PHy=e^Q2POrk`#t;^D%>b&^~fA>oygq5Cjw*KK4{<Y
+z;oXOyhuPABKQ78`h63#INOAfuJFW~e&*9{@{!AQZfszBMa?g(idAIVX=4$xmBAyv{
+z>gdARaY9PN%>%Nw*mpj1&-Qq%@eZC2tkoiv{0mG-o`f3;?IvjyrOCz-p<SXi=l!xU
+z<B%zf{H-+Up2U<%?YL4aPk(YJZ!DkFsV@Bt%gVH>AvB!=HQ0uM@mLs82Nw2i?ud#I
+zvIzGy+rF@EQb>|cORyO(>!!~GmPWX&SHEhSM-|)PZns6yS!LH$eR131>a<-4nQL1o
+zb9r_$u`H@I*i6mf9;q30lyhHd2G)MmJUfh<y8E8g)Ls7<YKHen&F~(m8SY7qcNjHw
+M_dThpyB<i*zZDL3*8l(j
+
+literal 0
+HcmV?d00001
+
+diff --git a/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-fixup.scr-cmd b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-fixup.scr-cmd
+new file mode 100755
+index 000000000..2bde77cb0
+--- /dev/null
++++ b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-fixup.scr-cmd
+@@ -0,0 +1,110 @@
++# overlays fixup script
++# implements (or rather substitutes) overlay arguments functionality
++# using u-boot scripting, environment variables and "fdt" command
++
++# setexpr test_var ${tmp_bank} - A
++# works only for hex numbers (A-F)
++
++setenv decompose_pin 'setexpr tmp_bank sub "P(C|G|H|I)\\d+" "\\1";
++setexpr tmp_pin sub "P\\S(\\d+)" "\\1";
++test "${tmp_bank}" = "C" && setenv tmp_bank 2;
++test "${tmp_bank}" = "G" && setenv tmp_bank 6'
++test "${tmp_bank}" = "H" && setenv tmp_bank 7;
++test "${tmp_bank}" = "I" && setenv tmp_bank 8;
++
++if test -n "${param_spinor_spi_bus}"; then
++	test "${param_spinor_spi_bus}" = "0" && setenv tmp_spi_path "spi@5010000"
++	test "${param_spinor_spi_bus}" = "1" && setenv tmp_spi_path "spi@5011000"
++	fdt set /soc/${tmp_spi_path} status "okay"
++	fdt set /soc/${tmp_spi_path}/spiflash@0 status "okay"
++	if test -n "${param_spinor_max_freq}"; then
++		fdt set /soc/${tmp_spi_path}/spiflash@0 spi-max-frequency "<${param_spinor_max_freq}>"
++	fi
++	if test "${param_spinor_spi_cs}" = "1"; then
++		fdt set /soc/${tmp_spi_path}/spiflash@0 reg "<1>"
++	fi
++	env delete tmp_spi_path
++fi
++
++if test -n "${param_spidev_spi_bus}"; then
++	test "${param_spidev_spi_bus}" = "0" && setenv tmp_spi_path "spi@5010000"
++	test "${param_spidev_spi_bus}" = "1" && setenv tmp_spi_path "spi@5011000"
++	fdt set /soc/${tmp_spi_path} status "okay"
++	fdt set /soc/${tmp_spi_path}/spidev status "okay"
++	if test -n "${param_spidev_max_freq}"; then
++		fdt set /soc/${tmp_spi_path}/spidev spi-max-frequency "<${param_spidev_max_freq}>"
++	fi
++	if test "${param_spidev_spi_cs}" = "1"; then
++		fdt set /soc/${tmp_spi_path}/spidev reg "<1>"
++	fi
++	env delete tmp_spi_path
++fi
++
++if test -n "${param_pps_pin}"; then
++	setenv tmp_bank "${param_pps_pin}"
++	setenv tmp_pin "${param_pps_pin}"
++	run decompose_pin
++	fdt set /soc/pinctrl@300b000/pps_pins pins "${param_pps_pin}"
++	fdt get value tmp_phandle /soc/pinctrl@300b000 phandle
++	fdt set /pps@0 gpios "<${tmp_phandle} ${tmp_bank} ${tmp_pin} 0>"
++	env delete tmp_pin tmp_bank tmp_phandle
++fi
++
++if test "${param_pps_falling_edge}" = "1"; then
++	fdt set /pps@0 assert-falling-edge
++fi
++
++for f in ${overlays}; do
++	if test "${f}" = "pwm34"; then
++		setenv bootargs_new ""
++		for arg in ${bootargs}; do
++			if test "${arg}" = "console=ttyS0,115200"; then
++				echo "Warning: Disabling ttyS0 console due to enabled PWM3 and PWM4 overlay"
++			else
++				setenv bootargs_new "${bootargs_new} ${arg}"
++			fi
++		done
++		setenv bootargs "${bootargs_new}"
++	fi
++done
++
++if test -n "${param_w1_pin}"; then
++	setenv tmp_bank "${param_w1_pin}"
++	setenv tmp_pin "${param_w1_pin}"
++	run decompose_pin
++	fdt set /soc/pinctrl@300b000/w1_pins pins "${param_w1_pin}"
++	fdt get value tmp_phandle /soc/pinctrl@300b000 phandle
++	fdt set /onewire@0 gpios "<${tmp_phandle} ${tmp_bank} ${tmp_pin} 0>"
++	env delete tmp_pin tmp_bank tmp_phandle
++fi
++
++if test "${param_w1_pin_int_pullup}" = "1"; then
++	fdt set /soc/pinctrl@300b000/w1_pins bias-pull-up
++fi
++
++if test "${param_uart1_rtscts}" = "1"; then
++	fdt get value tmp_phandle1 /soc/pinctrl@300b000/uart1-pins phandle
++	fdt get value tmp_phandle2 /soc/pinctrl@300b000/uart1-rts-cts-pins phandle
++	fdt set /soc/serial@5000400 pinctrl-names "default" "default"
++	fdt set /soc/serial@5000400 pinctrl-0 "<${tmp_phandle1}>"
++	fdt set /soc/serial@5000400 pinctrl-1 "<${tmp_phandle2}>"
++	env delete tmp_phandle1 tmp_phandle2
++fi
++
++if test "${param_uart2_rtscts}" = "1"; then
++	fdt get value tmp_phandle1 /soc/pinctrl@300b000/uart2-pins phandle
++	fdt get value tmp_phandle2 /soc/pinctrl@300b000/uart2-rts-cts-pins phandle
++	fdt set /soc/serial@5000800 pinctrl-names "default" "default"
++	fdt set /soc/serial@5000800 pinctrl-0 "<${tmp_phandle1}>"
++	fdt set /soc/serial@5000800 pinctrl-1 "<${tmp_phandle2}>"
++	env delete tmp_phandle1 tmp_phandle2
++fi
++
++if test "${param_uart3_rtscts}" = "1"; then
++	fdt get value tmp_phandle1 /soc/pinctrl@300b000/uart3-pins phandle
++	fdt get value tmp_phandle2 /soc/pinctrl@300b000/uart3-rts-cts-pins phandle
++	fdt set /soc/serial@5000c00 pinctrl-names "default" "default"
++	fdt set /soc/serial@5000c00 pinctrl-0 "<${tmp_phandle1}>"
++	fdt set /soc/serial@5000c00 pinctrl-1 "<${tmp_phandle2}>"
++	env delete tmp_phandle1 tmp_phandle2
++fi
+diff --git a/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-gpu.dts b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-gpu.dts
+new file mode 100755
+index 000000000..5d404588c
+--- /dev/null
++++ b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-gpu.dts
+@@ -0,0 +1,11 @@
++/dts-v1/;
++/plugin/;
++
++/ {
++	fragment@0 {
++		target = <&gpu>;
++		__overlay__ {
++			status = "okay";
++		};
++	};
++};
+diff --git a/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-ir.dts b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-ir.dts
+new file mode 100755
+index 000000000..34a5efc83
+--- /dev/null
++++ b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-ir.dts
+@@ -0,0 +1,13 @@
++/dts-v1/;
++/plugin/;
++
++/ {
++	fragment@0 {
++		target = <&ir>;
++		__overlay__ {
++			pinctrl-names = "default";
++			pinctrl-0 = <&ir_rx_pin>;
++			status = "okay";
++		};
++	};
++};
+diff --git a/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-ph-i2c1.dts b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-ph-i2c1.dts
+new file mode 100755
+index 000000000..b5beef5e3
+--- /dev/null
++++ b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-ph-i2c1.dts
+@@ -0,0 +1,28 @@
++/dts-v1/;
++/plugin/;
++
++/ {
++	fragment@0 {
++		target-path = "/aliases";
++		__overlay__ {
++			i2c1 = "/soc/i2c@5002400";
++			serial2 = "/soc/serial@5000800";
++		};
++	};
++
++	fragment@1 {
++		target = <&i2c1>;
++		__overlay__ {
++			pinctrl-names = "default";
++			pinctrl-0 = <&i2c1_ph_pins>;
++			status = "okay";
++		};
++	};
++
++        fragment@2 {
++                target = <&uart0>;
++                __overlay__ {
++                        status = "disabled";
++                };
++        };
++};
+diff --git a/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-ph-i2c2.dts b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-ph-i2c2.dts
+new file mode 100755
+index 000000000..689b405a1
+--- /dev/null
++++ b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-ph-i2c2.dts
+@@ -0,0 +1,20 @@
++/dts-v1/;
++/plugin/;
++
++/ {
++	fragment@0 {
++		target-path = "/aliases";
++		__overlay__ {
++			i2c2 = "/soc/i2c@5002800";
++		};
++	};
++
++	fragment@1 {
++		target = <&i2c2>;
++		__overlay__ {
++			pinctrl-names = "default";
++			pinctrl-0 = <&i2c2_ph_pins>;
++			status = "okay";
++		};
++	};
++};
+diff --git a/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-ph-i2c3.dts b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-ph-i2c3.dts
+new file mode 100755
+index 000000000..2c527f66d
+--- /dev/null
++++ b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-ph-i2c3.dts
+@@ -0,0 +1,20 @@
++/dts-v1/;
++/plugin/;
++
++/ {
++	fragment@0 {
++		target-path = "/aliases";
++		__overlay__ {
++			i2c3 = "/soc/i2c@5002c00";
++		};
++	};
++
++	fragment@1 {
++		target = <&i2c3>;
++		__overlay__ {
++			pinctrl-names = "default";
++			pinctrl-0 = <&i2c3_ph_pins>;
++			status = "okay";
++		};
++	};
++};
+diff --git a/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-ph-i2c4.dts b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-ph-i2c4.dts
+new file mode 100755
+index 000000000..7aa932768
+--- /dev/null
++++ b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-ph-i2c4.dts
+@@ -0,0 +1,20 @@
++/dts-v1/;
++/plugin/;
++
++/ {
++	fragment@0 {
++		target-path = "/aliases";
++		__overlay__ {
++			i2c4 = "/soc/i2c@5003000";
++		};
++	};
++
++	fragment@1 {
++		target = <&i2c4>;
++		__overlay__ {
++			pinctrl-names = "default";
++			pinctrl-0 = <&i2c4_ph_pins>;
++			status = "okay";
++		};
++	};
++};
+diff --git a/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-ph-pwm12.dts b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-ph-pwm12.dts
+new file mode 100755
+index 000000000..377d146a4
+--- /dev/null
++++ b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-ph-pwm12.dts
+@@ -0,0 +1,11 @@
++/dts-v1/;
++/plugin/;
++
++/ {
++	fragment@0 {
++		target = <&pwm>;
++		__overlay__ {
++			status = "okay";
++		};
++	};
++};
+diff --git a/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-ph-pwm34.dts b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-ph-pwm34.dts
+new file mode 100755
+index 000000000..097cfcf7c
+--- /dev/null
++++ b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-ph-pwm34.dts
+@@ -0,0 +1,18 @@
++/dts-v1/;
++/plugin/;
++
++/ {
++	fragment@0 {
++		target = <&uart0>;
++		 __overlay__ {
++			status = "disabled";
++		};
++	};
++
++	fragment@1 {
++		target = <&pwm>;
++		__overlay__ {
++			status = "okay";
++		};
++	};
++};
+diff --git a/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-ph-uart2.dts b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-ph-uart2.dts
+new file mode 100755
+index 000000000..497e039bb
+--- /dev/null
++++ b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-ph-uart2.dts
+@@ -0,0 +1,20 @@
++/dts-v1/;
++/plugin/;
++
++/ {
++	fragment@0 {
++		target-path = "/aliases";
++		__overlay__ {
++			serial2 = "/soc/serial@5000800";
++		};
++	};
++
++	fragment@1 {
++		target = <&uart2>;
++		__overlay__ {
++			pinctrl-names = "default";
++			pinctrl-0 = <&uart2_ph_pins>;
++			status = "okay";
++		};
++	};
++};
+diff --git a/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-ph-uart5.dts b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-ph-uart5.dts
+new file mode 100755
+index 000000000..9f0c16c32
+--- /dev/null
++++ b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-ph-uart5.dts
+@@ -0,0 +1,20 @@
++/dts-v1/;
++/plugin/;
++
++/ {
++	fragment@0 {
++		target-path = "/aliases";
++		__overlay__ {
++			serial5 = "/soc/serial@5001400";
++		};
++	};
++
++	fragment@1 {
++		target = <&uart5>;
++		 __overlay__ {
++			pinctrl-names = "default";
++			pinctrl-0 = <&uart5_ph_pins>;
++			status = "okay";
++		};
++	};
++};
+diff --git a/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-pi-i2c0.dts b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-pi-i2c0.dts
+new file mode 100755
+index 000000000..a4f08295a
+--- /dev/null
++++ b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-pi-i2c0.dts
+@@ -0,0 +1,30 @@
++/dts-v1/;
++/plugin/;
++
++/ {
++	fragment@0 {
++		target-path = "/aliases";
++		__overlay__ {
++			i2c0 = "/soc/i2c@5002000";
++			serial2 = "/soc/serial@5000800";
++		};
++	};
++
++	fragment@1 {
++		target = <&i2c0>;
++		__overlay__ {
++			pinctrl-names = "default";
++			pinctrl-0 = <&i2c0_pi_pins>;
++			status = "okay";
++		};
++	};
++
++        fragment@2 {
++                target = <&uart2>;
++                __overlay__ {
++			pinctrl-names = "default";
++			pinctrl-0 = <&uart2_pi_pins>;
++                        status = "disabled";
++                };
++        };
++};
+diff --git a/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-pi-i2c1.dts b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-pi-i2c1.dts
+new file mode 100755
+index 000000000..56f3abdf5
+--- /dev/null
++++ b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-pi-i2c1.dts
+@@ -0,0 +1,13 @@
++/dts-v1/;
++/plugin/;
++
++/ {
++	fragment@0 {
++		target = <&i2c1>;
++		__overlay__ {
++			pinctrl-names = "default";
++			pinctrl-0 = <&i2c1_pi_pins>;
++			status = "okay";
++		};
++	};
++};
+diff --git a/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-pi-i2c2.dts b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-pi-i2c2.dts
+new file mode 100755
+index 000000000..b7dbd84f3
+--- /dev/null
++++ b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-pi-i2c2.dts
+@@ -0,0 +1,22 @@
++/dts-v1/;
++/plugin/;
++
++/ {
++	fragment@0 {
++		target = <&i2c2>;
++		__overlay__ {
++			pinctrl-names = "default";
++			pinctrl-0 = <&i2c2_pi_pins>;
++			status = "okay";
++		};
++	};
++
++        fragment@1 {
++                target = <&uart3>;
++                __overlay__ {
++			pinctrl-names = "default";
++			pinctrl-0 = <&uart3_pi_pins>;
++                        status = "disabled";
++                };
++        };
++};
+diff --git a/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-pi-pwm1.dts b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-pi-pwm1.dts
+new file mode 100755
+index 000000000..700600ff6
+--- /dev/null
++++ b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-pi-pwm1.dts
+@@ -0,0 +1,19 @@
++/dts-v1/;
++/plugin/;
++
++/ {
++	fragment@0 {
++		target = <&pwm>;
++		__overlay__ {
++			status = "okay";
++		};
++	};
++
++	fragment@1 {
++		target = <&pwm1>;
++		__overlay__ {
++			pinctrl-names = "default";
++			pinctrl-0 = <&pwm1_pi_pin>;
++		};
++	};
++};
+diff --git a/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-pi-pwm2.dts b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-pi-pwm2.dts
+new file mode 100755
+index 000000000..b477df69f
+--- /dev/null
++++ b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-pi-pwm2.dts
+@@ -0,0 +1,19 @@
++/dts-v1/;
++/plugin/;
++
++/ {
++	fragment@0 {
++		target = <&pwm>;
++		__overlay__ {
++			status = "okay";
++		};
++	};
++
++	fragment@1 {
++		target = <&pwm2>;
++		__overlay__ {
++			pinctrl-names = "default";
++			pinctrl-0 = <&pwm2_pi_pin>;
++		};
++	};
++};
+diff --git a/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-pi-pwm3.dts b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-pi-pwm3.dts
+new file mode 100755
+index 000000000..a7758bf9f
+--- /dev/null
++++ b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-pi-pwm3.dts
+@@ -0,0 +1,19 @@
++/dts-v1/;
++/plugin/;
++
++/ {
++	fragment@0 {
++		target = <&pwm>;
++		__overlay__ {
++			status = "okay";
++		};
++	};
++
++	fragment@1 {
++		target = <&pwm3>;
++		__overlay__ {
++			pinctrl-names = "default";
++			pinctrl-0 = <&pwm3_pi_pin>;
++		};
++	};
++};
+diff --git a/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-pi-pwm4.dts b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-pi-pwm4.dts
+new file mode 100755
+index 000000000..71a3d943a
+--- /dev/null
++++ b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-pi-pwm4.dts
+@@ -0,0 +1,19 @@
++/dts-v1/;
++/plugin/;
++
++/ {
++	fragment@0 {
++		target = <&pwm>;
++		__overlay__ {
++			status = "okay";
++		};
++	};
++
++	fragment@1 {
++		target = <&pwm4>;
++		__overlay__ {
++			pinctrl-names = "default";
++			pinctrl-0 = <&pwm4_pi_pin>;
++		};
++	};
++};
+diff --git a/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-pi-uart2.dts b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-pi-uart2.dts
+new file mode 100755
+index 000000000..fb208b10a
+--- /dev/null
++++ b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-pi-uart2.dts
+@@ -0,0 +1,20 @@
++/dts-v1/;
++/plugin/;
++
++/ {
++	fragment@0 {
++		target-path = "/aliases";
++		__overlay__ {
++			serial2 = "/soc/serial@5000800";
++		};
++	};
++
++	fragment@1 {
++		target = <&uart2>;
++		__overlay__ {
++			pinctrl-names = "default";
++			pinctrl-0 = <&uart2_pi_pins>;
++			status = "okay";
++		};
++	};
++};
+diff --git a/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-pi-uart3.dts b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-pi-uart3.dts
+new file mode 100755
+index 000000000..ce8007baa
+--- /dev/null
++++ b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-pi-uart3.dts
+@@ -0,0 +1,20 @@
++/dts-v1/;
++/plugin/;
++
++/ {
++	fragment@0 {
++		target-path = "/aliases";
++		__overlay__ {
++			serial2 = "/soc/serial@5000c00";
++		};
++	};
++
++	fragment@1 {
++		target = <&uart3>;
++		__overlay__ {
++			pinctrl-names = "default";
++			pinctrl-0 = <&uart3_pi_pins>;
++			status = "okay";
++		};
++	};
++};
+diff --git a/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-pi-uart4.dts b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-pi-uart4.dts
+new file mode 100755
+index 000000000..11a3c30ad
+--- /dev/null
++++ b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-pi-uart4.dts
+@@ -0,0 +1,20 @@
++/dts-v1/;
++/plugin/;
++
++/ {
++	fragment@0 {
++		target-path = "/aliases";
++		__overlay__ {
++			serial3 = "/soc/serial@5001000";
++		};
++	};
++
++	fragment@1 {
++		target = <&uart4>;
++		__overlay__ {
++			pinctrl-names = "default";
++			pinctrl-0 = <&uart4_pi_pins>;
++			status = "okay";
++		};
++	};
++};
+diff --git a/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-spi0-spidev.dts b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-spi0-spidev.dts
+new file mode 100755
+index 000000000..d76fb6442
+--- /dev/null
++++ b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-spi0-spidev.dts
+@@ -0,0 +1,34 @@
++/dts-v1/;
++/plugin/;
++
++/ {
++	fragment@0 {
++		target-path = "/aliases";
++		__overlay__ {
++			spi0 = "/soc/spi@5010000";
++		};
++	};
++
++	fragment@1 {
++		target = <&spi0>;
++		__overlay__ {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			spidev@0 {
++				compatible = "rohm,dh2228fv";
++				status = "okay";
++				reg = <0>;
++				spi-max-frequency = <1000000>;
++			};
++		};
++	};
++
++	fragment@2 {
++		target = <&spi0>;
++		__overlay__ {
++			flash@0 {
++				status = "disabled";
++			};
++		};
++	};
++};
+diff --git a/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-spi1-cs0-cs1-spidev.dts b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-spi1-cs0-cs1-spidev.dts
+new file mode 100755
+index 000000000..00e7a79ac
+--- /dev/null
++++ b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-spi1-cs0-cs1-spidev.dts
+@@ -0,0 +1,37 @@
++/dts-v1/;
++/plugin/;
++
++/ {
++	fragment@0 {
++		target-path = "/aliases";
++		__overlay__ {
++			spi1 = "/soc/spi@5011000";
++		};
++	};
++
++	fragment@1 {
++		target = <&spi1>;
++		__overlay__ {
++			status = "okay";
++			#address-cells = <1>;
++			#size-cells = <0>;
++
++			pinctrl-names = "default";
++			pinctrl-0 = <&spi1_pins>, <&spi1_cs0_pin>, <&spi1_cs1_pin>;
++
++			spidev@0 {
++				compatible = "rohm,dh2228fv";
++				status = "okay";
++				reg = <0>;
++				spi-max-frequency = <50000000>;
++			};
++
++			spidev@1 {
++				compatible = "rohm,dh2228fv";
++				status = "okay";
++				reg = <1>;
++				spi-max-frequency = <50000000>;
++			};
++		};
++	};
++};
+diff --git a/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-spi1-cs0-spidev.dts b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-spi1-cs0-spidev.dts
+new file mode 100755
+index 000000000..d65d2e7cc
+--- /dev/null
++++ b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-spi1-cs0-spidev.dts
+@@ -0,0 +1,29 @@
++/dts-v1/;
++/plugin/;
++
++/ {
++	fragment@0 {
++		target-path = "/aliases";
++		__overlay__ {
++			spi1 = "/soc/spi@5011000";
++		};
++	};
++
++	fragment@1 {
++		target = <&spi1>;
++		__overlay__ {
++			status = "okay";
++			#address-cells = <1>;
++			#size-cells = <0>;
++
++                        pinctrl-names = "default";
++                        pinctrl-0 = <&spi1_pins>, <&spi1_cs0_pin>;
++			spidev@0 {
++				compatible = "rohm,dh2228fv";
++				status = "okay";
++				reg = <0>;
++				spi-max-frequency = <1000000>;
++			};
++		};
++	};
++};
+diff --git a/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-spi1-cs1-spidev.dts b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-spi1-cs1-spidev.dts
+new file mode 100755
+index 000000000..ed64ed6cc
+--- /dev/null
++++ b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-spi1-cs1-spidev.dts
+@@ -0,0 +1,29 @@
++/dts-v1/;
++/plugin/;
++
++/ {
++	fragment@0 {
++		target-path = "/aliases";
++		__overlay__ {
++			spi1 = "/soc/spi@5011000";
++		};
++	};
++
++	fragment@1 {
++		target = <&spi1>;
++		__overlay__ {
++			status = "okay";
++			#address-cells = <1>;
++			#size-cells = <0>;
++
++                        pinctrl-names = "default";
++                        pinctrl-0 = <&spi1_pins>, <&spi1_cs1_pin>;
++			spidev@1 {
++				compatible = "rohm,dh2228fv";
++				status = "okay";
++				reg = <1>;
++				spi-max-frequency = <1000000>;
++			};
++		};
++	};
++};
+diff --git a/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-usb0-host.dts b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-usb0-host.dts
+new file mode 100755
+index 000000000..1cc2a6d4d
+--- /dev/null
++++ b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-usb0-host.dts
+@@ -0,0 +1,33 @@
++/dts-v1/;
++/plugin/;
++
++/ {
++	fragment@0 {
++		target = <&usbotg>;
++		__overlay__ {
++			dr_mode = "host";
++			status = "okay";
++		};
++	};
++
++	fragment@1 {
++		target = <&usbphy>;
++		__overlay__ {
++			status = "okay";
++		};
++	};
++
++	fragment@2 {
++		target = <&ehci0>;
++		__overlay__ {
++			status = "okay";
++		};
++	};
++
++	fragment@3 {
++		target = <&ohci0>;
++		__overlay__ {
++			status = "okay";
++		};
++	};
++};
+diff --git a/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-zero2w-disable-led.dts b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-zero2w-disable-led.dts
+new file mode 100755
+index 000000000..fdd7c2ca5
+--- /dev/null
++++ b/arch/arm64/boot/dts/allwinner/overlay/sun50i-h616-zero2w-disable-led.dts
+@@ -0,0 +1,16 @@
++/dts-v1/;
++/plugin/;
++
++/ {
++	fragment@0 {
++		target = <&leds>;
++
++		__overlay__ {
++			status = "okay";
++
++			led-green {
++				linux,default-trigger = "none";
++			};
++		};
++	};
++};
+diff --git a/arch/arm64/boot/dts/allwinner/sun50i-h616-cpu-opp.dtsi b/arch/arm64/boot/dts/allwinner/sun50i-h616-cpu-opp.dtsi
+new file mode 100644
+index 000000000..4cd958d8c
+--- /dev/null
++++ b/arch/arm64/boot/dts/allwinner/sun50i-h616-cpu-opp.dtsi
+@@ -0,0 +1,117 @@
++// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
++// Copyright (C) 2021 Piotr Oniszczuk <piotr.oniszczuk@gmail.com>
++/*
++  Opi Zero2:bin0  bin1
++ 480000000  820mV  880mV
++ 600000000  820mV  880mV
++ 792000000  860mV  940mV
++ 1008000000 900mV  1020mV
++ 1200000000 960mV  1100mV
++ 1296000000 1100mV 1100mV
++ 1344000000 1120mV 1120mV
++ 1512000000 1120mV 1120mV
++*/
++
++/ {
++	cpu_opp_table: opp-table-cpu {
++		compatible = "allwinner,sun50i-h616-operating-points";
++		nvmem-cells = <&cpu_speed_grade>;
++		opp-shared;
++
++		opp-480000000 {
++			clock-latency-ns = <244144>; /* 8 32k periods */
++			opp-hz = /bits/ 64 <480000000>;
++
++			opp-microvolt-speed0 = <900000 900000 1100000>;
++			opp-microvolt-speed1 = <900000 900000 1100000>;
++			opp-microvolt-speed2 = <900000 900000 1100000>;
++		};
++
++		opp-600000000 {
++			clock-latency-ns = <244144>; /* 8 32k periods */
++			opp-hz = /bits/ 64 <600000000>;
++
++			opp-microvolt-speed0 = <900000 900000 1100000>;
++			opp-microvolt-speed1 = <920000 920000 1100000>;
++			opp-microvolt-speed2 = <920000 920000 1100000>;
++		};
++
++		opp-792000000 {
++			clock-latency-ns = <244144>; /* 8 32k periods */
++			opp-hz = /bits/ 64 <792000000>;
++		        opp-microvolt-speed0 = <900000 900000 1100000>;
++			opp-microvolt-speed1 = <940000 940000 1100000>;
++			opp-microvolt-speed2 = <940000 940000 1100000>;
++		};
++
++		opp-1008000000 {
++			clock-latency-ns = <244144>; /* 8 32k periods */
++			opp-hz = /bits/ 64 <1008000000>;
++
++			opp-microvolt-speed0 = <900000 900000 1100000>;
++			opp-microvolt-speed1 = <1020000 1020000 1100000>;
++			opp-microvolt-speed2 = <1020000 1020000 1100000>;
++		};
++
++		opp-1200000000 {
++			clock-latency-ns = <244144>; /* 8 32k periods */
++			opp-hz = /bits/ 64 <1200000000>;
++
++			opp-microvolt-speed0 = <960000 960000 1100000>;
++			opp-microvolt-speed1 = <1100000 1100000 1100000>;
++			opp-microvolt-speed2 = <1100000 1100000 1100000>;
++		};
++
++		opp-1344000000 {
++			clock-latency-ns = <244144>; /* 8 32k periods */
++			opp-hz = /bits/ 64 <1344000000>;
++
++			opp-microvolt-speed0 = <1050000 1050000 1100000>;
++			opp-microvolt-speed1 = <1100000 1100000 1100000>;
++			opp-microvolt-speed2 = <1100000 1100000 1100000>;
++		};
++
++		opp-1416000000 {
++			clock-latency-ns = <244144>; /* 8 32k periods */
++			opp-hz = /bits/ 64 <1416000000>;
++
++			opp-microvolt-speed0 = <1100000 1100000 1100000>;
++			opp-microvolt-speed1 = <1100000 1100000 1100000>;
++			opp-microvolt-speed2 = <1100000 1100000 1100000>;
++		};
++
++		opp-1512000000 {
++			clock-latency-ns = <244144>; /* 8 32k periods */
++			opp-hz = /bits/ 64 <1512000000>;
++
++			opp-microvolt-speed0 = <1100000 1100000 1100000>;
++			opp-microvolt-speed1 = <1100000 1100000 1100000>;
++			opp-microvolt-speed2 = <1100000 1100000 1100000>;
++		};
++
++		//opp-1608000000 {
++		//	clock-latency-ns = <244144>; /* 8 32k periods */
++		//	opp-hz = /bits/ 64 <1608000000>;
++
++		//	opp-microvolt-speed0 = <1120000 1120000 1120000>;
++		//	opp-microvolt-speed1 = <1120000 1120000 1120000>;
++		//	opp-microvolt-speed2 = <1120000 1120000 1120000>;
++		//};
++	};
++};
++
++&cpu0 {
++	operating-points-v2 = <&cpu_opp_table>;
++};
++
++&cpu1 {
++	operating-points-v2 = <&cpu_opp_table>;
++};
++
++&cpu2 {
++	operating-points-v2 = <&cpu_opp_table>;
++};
++
++&cpu3 {
++	operating-points-v2 = <&cpu_opp_table>;
++};
+diff --git a/arch/arm64/boot/dts/allwinner/sun50i-h618-orangepi-zero3.dts b/arch/arm64/boot/dts/allwinner/sun50i-h618-orangepi-zero3.dts
+new file mode 100755
+index 000000000..ec6e70a50
+--- /dev/null
++++ b/arch/arm64/boot/dts/allwinner/sun50i-h618-orangepi-zero3.dts
+@@ -0,0 +1,376 @@
++// SPDX-License-Identifier: (GPL-2.0+ or MIT)
++/*
++ * Copyright (C) 2020 Arm Ltd.
++ */
++
++/dts-v1/;
++
++#include "sun50i-h616.dtsi"
++#include "sun50i-h616-cpu-opp.dtsi"
++
++#include <dt-bindings/gpio/gpio.h>
++#include <dt-bindings/interrupt-controller/arm-gic.h>
++#include <dt-bindings/leds/common.h>
++
++/ {
++	model = "OrangePi Zero3";
++	compatible = "xunlong,orangepi-zero3", "allwinner,sun50i-h618";
++
++	aliases {
++		ethernet0 = &emac0;
++		serial0 = &uart0;
++		serial5 = &uart5;
++	};
++
++	chosen {
++		stdout-path = "serial0:115200n8";
++	};
++
++	connector {
++		compatible = "hdmi-connector";
++		type = "d";
++
++		port {
++			hdmi_con_in: endpoint {
++				remote-endpoint = <&hdmi_out_con>;
++			};
++		};
++	};
++
++	leds: leds {
++		compatible = "gpio-leds";
++
++		led-red {
++			label = "red_led";
++			gpios = <&pio 2 12 GPIO_ACTIVE_HIGH>; /* PC12 */
++			linux,default-trigger = "none";
++		};
++
++		led-green {
++			label = "green_led";
++			gpios = <&pio 2 13 GPIO_ACTIVE_HIGH>; /* PC13 */
++			linux,default-trigger = "heartbeat";
++		};
++	};
++
++	reg_vcc5v: vcc5v {
++		/* board wide 5V supply directly from the USB-C socket */
++		compatible = "regulator-fixed";
++		regulator-name = "vcc-5v";
++		regulator-min-microvolt = <5000000>;
++		regulator-max-microvolt = <5000000>;
++		regulator-always-on;
++	};
++
++	reg_usb1_vbus: usb1-vbus {
++		compatible = "regulator-fixed";
++		regulator-name = "usb1-vbus";
++		regulator-min-microvolt = <5000000>;
++		regulator-max-microvolt = <5000000>;
++		vin-supply = <&reg_vcc5v>;
++		enable-active-high;
++		gpio = <&pio 2 16 GPIO_ACTIVE_HIGH>; /* PC16 */
++		status = "okay";
++	};
++
++	reg_vcc33_wifi: vcc33-wifi {
++		/* Always on 3.3V regulator for WiFi and BT */
++		compatible = "regulator-fixed";
++		regulator-name = "vcc33-wifi";
++		regulator-min-microvolt = <3300000>;
++		regulator-max-microvolt = <3300000>;
++		regulator-always-on;
++		vin-supply = <&reg_vcc5v>;
++	};
++
++	reg_vcc_wifi_io: vcc-wifi-io {
++		/* Always on 1.8V/300mA regulator for WiFi and BT IO */
++		compatible = "regulator-fixed";
++		regulator-name = "vcc-wifi-io";
++		regulator-min-microvolt = <1800000>;
++		regulator-max-microvolt = <1800000>;
++		regulator-always-on;
++		vin-supply = <&reg_vcc33_wifi>;
++	};
++
++	wifi_pwrseq: wifi-pwrseq {
++		compatible = "mmc-pwrseq-simple";
++		clocks = <&rtc 1>;
++		clock-names = "osc32k-out";
++		reset-gpios = <&pio 6 18 GPIO_ACTIVE_LOW>; /* PG18 */
++		post-power-on-delay-ms = <200>;
++	};
++};
++
++&de {
++	status = "okay";
++};
++
++&hdmi {
++	//hvcc-supply = <&reg_bldo1>;
++	status = "okay";
++};
++
++&hdmi_out {
++	hdmi_out_con: endpoint {
++		remote-endpoint = <&hdmi_con_in>;
++	};
++};
++
++&gpu {
++	mali-supply = <&reg_dcdc1>;
++	status = "disabled";
++};
++
++&emac0 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&ext_rgmii_pins>;
++	phy-mode = "rgmii";
++	phy-handle = <&ext_rgmii_phy>;
++	allwinner,rx-delay-ps = <1800>;
++	allwinner,tx-delay-ps = <700>;
++	status = "okay";
++};
++
++&mdio0 {
++	ext_rgmii_phy: ethernet-phy@1 {
++		compatible = "ethernet-phy-ieee802.3-c22";
++		reg = <1>;
++		motorcomm,clk-out-frequency-hz = <125000000>;
++		motorcomm,keep-pll-enabled;
++		motorcomm,auto-sleep-disabled;
++	};
++};
++
++&mmc0 {
++	vmmc-supply = <&reg_dldo1>;
++	cd-gpios = <&pio 5 6 GPIO_ACTIVE_LOW>;	/* PF6 */
++	bus-width = <4>;
++	max-frequency = <50000000>;
++	status = "okay";
++};
++
++&mmc1 {
++	vmmc-supply = <&reg_vcc33_wifi>;
++	vqmmc-supply = <&reg_vcc_wifi_io>;
++	mmc-pwrseq = <&wifi_pwrseq>;
++	bus-width = <4>;
++	non-removable;
++	mmc-ddr-1_8v;
++	status = "okay";
++};
++
++&r_i2c {
++	status = "okay";
++
++	axp313a: pmic@36 {
++		compatible = "x-powers,axp313a";
++		reg = <0x36>;
++		wakeup-source;
++
++		regulators{
++			reg_dcdc1: dcdc1 {
++				regulator-name = "axp313a-dcdc1";
++				regulator-min-microvolt = <500000>;
++				regulator-max-microvolt = <1100000>;
++				regulator-step-delay-us = <25>;
++				regulator-final-delay-us = <50>;
++				regulator-always-on;
++			};
++
++			reg_dcdc2: dcdc2 {
++				regulator-name = "axp313a-dcdc2";
++				regulator-min-microvolt = <500000>;
++				regulator-max-microvolt = <1200000>;
++				regulator-step-delay-us = <25>;
++				regulator-final-delay-us = <50>;
++				regulator-ramp-delay = <200>;
++				regulator-always-on;
++			};
++
++			reg_dcdc3: dcdc3 {
++				regulator-name = "axp313a-dcdc3";
++				regulator-min-microvolt = <1100000>;
++				regulator-max-microvolt = <1100000>;
++				regulator-step-delay-us = <25>;
++				regulator-final-delay-us = <50>;
++				regulator-always-on;
++			};
++
++			reg_aldo1: ldo1 {
++				regulator-name = "axp313a-aldo1";
++				regulator-min-microvolt = <1800000>;
++				regulator-max-microvolt = <1800000>;
++				regulator-step-delay-us = <25>;
++				regulator-final-delay-us = <50>;
++				regulator-always-on;
++			};
++
++			reg_dldo1: ldo2 {
++				regulator-name = "axp313a-dldo1";
++				regulator-min-microvolt = <3300000>;
++				regulator-max-microvolt = <3300000>;
++				regulator-step-delay-us = <25>;
++				regulator-final-delay-us = <50>;
++				regulator-always-on;
++			};
++		};
++	};
++};
++
++&uart0 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&uart0_ph_pins>;
++	status = "okay";
++};
++
++&usbotg {
++	/*
++	 * PHY0 pins are connected to a USB-C socket, but a role switch
++	 * is not implemented: both CC pins are pulled to GND.
++	 * The VBUS pins power the device, so a fixed peripheral mode
++	 * is the best choice.
++	 * The board can be powered via GPIOs, in this case port0 *can*
++	 * act as a host (with a cable/adapter ignoring CC), as VBUS is
++	 * then provided by the GPIOs. Any user of this setup would
++	 * need to adjust the DT accordingly: dr_mode set to "host",
++	 * enabling OHCI0 and EHCI0.
++	 */
++	dr_mode = "peripheral";
++	status = "okay";
++};
++
++&usbphy {
++	usb1_vbus-supply = <&reg_usb1_vbus>;
++	status = "okay";
++};
++
++&ehci0 {
++	status = "disabled";
++};
++
++&ehci1 {
++	status = "okay";
++};
++
++&ehci2 {
++	status = "okay";
++};
++
++&ehci3 {
++	status = "okay";
++};
++
++&ohci0 {
++	status = "disabled";
++};
++
++&ohci1 {
++	status = "okay";
++};
++
++&ohci2 {
++	status = "okay";
++};
++
++&ohci3 {
++	status = "okay";
++};
++
++&ir {
++	pinctrl-names = "default";
++	pinctrl-0 = <&ir_rx_pin>;
++	status = "okay";
++};
++
++&i2c1 {
++	status = "disabled";
++};
++
++&i2c2 {
++	status = "disabled";
++};
++
++&i2c3 {
++	status = "disabled";
++};
++
++&i2c4 {
++	status = "disabled";
++};
++
++&uart2 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&uart2_ph_pins>;
++	status = "disabled";
++};
++
++&uart5 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&uart5_ph_pins>;
++	status = "disabled";
++};
++
++&spi0  {
++	status = "okay";
++	pinctrl-names = "default";
++	pinctrl-0 = <&spi0_pins>, <&spi0_cs0_pin>;
++
++	spidev@0 {
++		status = "disabled";
++		compatible = "rohm,dh2228fv";
++		reg = <0>;
++		spi-max-frequency = <1000000>;
++	};
++
++	flash@0 {
++		status = "okay";
++		#address-cells = <1>;
++		#size-cells = <1>;
++		compatible = "jedec,spi-nor";
++		reg = <0>;
++		spi-max-frequency = <40000000>;
++	};
++};
++
++&spi1 {
++	status = "disabled";
++	#address-cells = <1>;
++	#size-cells = <0>;
++	pinctrl-names = "default";
++	pinctrl-0 = <&spi1_pins>, <&spi1_cs1_pin>;
++
++	spidev@1 {
++		compatible = "rohm,dh2228fv";
++		status = "disabled";
++		reg = <1>;
++		spi-max-frequency = <1000000>;
++	};
++};
++
++&codec {
++	allwinner,audio-routing =
++	        "Line Out", "LINEOUT";
++	status = "okay";
++};
++
++&ahub_dam_plat {
++	status = "okay";
++};
++
++&ahub_dam_mach {
++	status = "okay";
++};
++
++&ahub1_plat {
++	status = "okay";
++};
++
++&ahub1_mach {
++	status = "okay";
++};
++
++&cpu0 {
++	cpu-supply = <&reg_dcdc2>;
++	status = "okay";
++};
+diff --git a/arch/arm64/boot/dts/allwinner/sun50i-h616.dtsi b/arch/arm64/boot/dts/allwinner/sun50i-h616.dtsi
+old mode 100644
+new mode 100755
+index a1d872e74..2cd542d2a
+--- a/arch/arm64/boot/dts/allwinner/sun50i-h616.dtsi
++++ b/arch/arm64/boot/dts/allwinner/sun50i-h616.dtsi
+@@ -7,8 +7,12 @@
+ #include <dt-bindings/clock/sun50i-h616-ccu.h>
+ #include <dt-bindings/clock/sun50i-h6-r-ccu.h>
+ #include <dt-bindings/clock/sun6i-rtc.h>
++#include <dt-bindings/clock/sun8i-de2.h>
++#include <dt-bindings/clock/sun8i-tcon-top.h>
+ #include <dt-bindings/reset/sun50i-h616-ccu.h>
+ #include <dt-bindings/reset/sun50i-h6-r-ccu.h>
++#include <dt-bindings/reset/sun8i-de2.h>
++#include <dt-bindings/thermal/thermal.h>
+ 
+ / {
+ 	interrupt-parent = <&gic>;
+@@ -25,6 +29,9 @@ cpu0: cpu@0 {
+ 			reg = <0>;
+ 			enable-method = "psci";
+ 			clocks = <&ccu CLK_CPUX>;
++			clock-latency-ns = <244144>; /* 8 32k periods */
++			#cooling-cells = <2>;
++			operating-points-v2 = <&cpu_opp_table>;
+ 		};
+ 
+ 		cpu1: cpu@1 {
+@@ -33,6 +40,9 @@ cpu1: cpu@1 {
+ 			reg = <1>;
+ 			enable-method = "psci";
+ 			clocks = <&ccu CLK_CPUX>;
++			clock-latency-ns = <244144>; /* 8 32k periods */
++			#cooling-cells = <2>;
++			operating-points-v2 = <&cpu_opp_table>;
+ 		};
+ 
+ 		cpu2: cpu@2 {
+@@ -41,6 +51,9 @@ cpu2: cpu@2 {
+ 			reg = <2>;
+ 			enable-method = "psci";
+ 			clocks = <&ccu CLK_CPUX>;
++			clock-latency-ns = <244144>; /* 8 32k periods */
++			#cooling-cells = <2>;
++			operating-points-v2 = <&cpu_opp_table>;
+ 		};
+ 
+ 		cpu3: cpu@3 {
+@@ -49,21 +62,30 @@ cpu3: cpu@3 {
+ 			reg = <3>;
+ 			enable-method = "psci";
+ 			clocks = <&ccu CLK_CPUX>;
++			clock-latency-ns = <244144>; /* 8 32k periods */
++			#cooling-cells = <2>;
++			operating-points-v2 = <&cpu_opp_table>;
+ 		};
+ 	};
+ 
++	de: display-engine {
++		compatible = "allwinner,sun50i-h6-display-engine";
++		allwinner,pipelines = <&mixer0>;
++		status = "disabled";
++	};
++
+ 	reserved-memory {
+ 		#address-cells = <2>;
+ 		#size-cells = <2>;
+ 		ranges;
+ 
+ 		/*
+-		 * 256 KiB reserved for Trusted Firmware-A (BL31).
++		 * 512 KiB reserved for Trusted Firmware-A (BL31).
+ 		 * This is added by BL31 itself, but some bootloaders fail
+ 		 * to propagate this into the DTB handed to kernels.
+ 		 */
+ 		secmon@40000000 {
+-			reg = <0x0 0x40000000 0x0 0x40000>;
++			reg = <0x0 0x40000000 0x0 0x80000>;
+ 			no-map;
+ 		};
+ 	};
+@@ -108,19 +130,122 @@ soc {
+ 		#size-cells = <1>;
+ 		ranges = <0x0 0x0 0x0 0x40000000>;
+ 
++		bus@1000000 {
++			compatible = "allwinner,sun50i-h616-de33",
++				     "allwinner,sun50i-a64-de2";
++			reg = <0x1000000 0x400000>;
++			allwinner,sram = <&de3_sram 1>;
++			#address-cells = <1>;
++			#size-cells = <1>;
++			ranges = <0 0x1000000 0x400000>;
++
++			display_clocks: clock@8000 {
++				compatible = "allwinner,sun50i-h616-de33-clk";
++				reg = <0x8000 0x100>;
++				clocks = <&ccu CLK_DE>, <&ccu CLK_BUS_DE>;
++				clock-names = "mod", "bus";
++				resets = <&ccu RST_BUS_DE>;
++				#clock-cells = <1>;
++				#reset-cells = <1>;
++			};
++
++			mixer0: mixer@100000 {
++				compatible = "allwinner,sun50i-h616-de33-mixer-0";
++				reg = <0x100000 0x100000>,
++				      <0x8100 0x40>,
++				      <0x280000 0x20000>;
++				clocks = <&display_clocks CLK_BUS_MIXER0>,
++					 <&display_clocks CLK_MIXER0>;
++				clock-names = "bus", "mod";
++				resets = <&display_clocks RST_MIXER0>;
++
++				ports {
++					#address-cells = <1>;
++					#size-cells = <0>;
++
++					mixer0_out: port@1 {
++						reg = <1>;
++
++						mixer0_out_tcon_top_mixer0: endpoint {
++							remote-endpoint = <&tcon_top_mixer0_in_mixer0>;
++						};
++					};
++				};
++			};
++		};
++
++		gpu: gpu@1800000 {
++			compatible = "allwinner,sun50i-h616-mali",
++			             "arm,mali-bifrost";
++			reg = <0x1800000 0x40000>;
++			interrupts = <GIC_SPI 95 IRQ_TYPE_LEVEL_HIGH>,
++			             <GIC_SPI 96 IRQ_TYPE_LEVEL_HIGH>,
++			             <GIC_SPI 97 IRQ_TYPE_LEVEL_HIGH>;
++			interrupt-names = "job", "mmu", "gpu";
++			clocks = <&ccu CLK_GPU0>, <&ccu CLK_BUS_GPU>;
++			clock-names = "core", "bus";
++			resets = <&ccu RST_BUS_GPU>;
++			//operating-points-v2 = <&gpu_opp_table>;
++			//#cooling-cells = <2>;
++			status = "disabled";
++		};
++
++		video-codec@1c0e000 {
++			compatible = "allwinner,sun50i-h616-video-engine";
++			reg = <0x01c0e000 0x2000>;
++			clocks = <&ccu CLK_BUS_VE>, <&ccu CLK_VE>,
++				 <&ccu CLK_MBUS_VE>;
++			clock-names = "ahb", "mod", "ram";
++			resets = <&ccu RST_BUS_VE>;
++			interrupts = <GIC_SPI 93 IRQ_TYPE_LEVEL_HIGH>;
++			allwinner,sram = <&ve_sram 1>;
++		};
++
+ 		syscon: syscon@3000000 {
+ 			compatible = "allwinner,sun50i-h616-system-control";
+-			reg = <0x03000000 0x1000>;
++			reg = <0x03000000 0x30>,<0x03000038 0x0fc8>;
+ 			#address-cells = <1>;
+ 			#size-cells = <1>;
+ 			ranges;
+ 
++			sram_a2: sram@100000 {
++				compatible = "mmio-sram";
++				reg = <0x00100000 0x18000>;
++				#address-cells = <1>;
++				#size-cells = <1>;
++				ranges = <0 0x00100000 0x18000>;
++
++				scpi_sram: scpi-sram@17c00 {
++					compatible = "arm,scp-shmem";
++					reg = <0x17c00 0x200>;
++				};
++			};
++
+ 			sram_c: sram@28000 {
+ 				compatible = "mmio-sram";
+ 				reg = <0x00028000 0x30000>;
+ 				#address-cells = <1>;
+ 				#size-cells = <1>;
+ 				ranges = <0 0x00028000 0x30000>;
++
++				de3_sram: sram-section@0 {
++					compatible = "allwinner,sun50i-h616-sram-c",
++						     "allwinner,sun50i-a64-sram-c";
++					reg = <0x0000 0x1e000>;
++				};
++			};
++
++			sram_c1: sram@1a00000 {
++				compatible = "mmio-sram";
++				reg = <0x01a00000 0x200000>;
++				#address-cells = <1>;
++				#size-cells = <1>;
++				ranges = <0 0x01a00000 0x200000>;
++
++				ve_sram: sram-section@0 {
++					compatible = "allwinner,sun50i-h616-sram-c1";
++					reg = <0x000000 0x200000>;
++				};
+ 			};
+ 		};
+ 
+@@ -133,12 +258,79 @@ ccu: clock@3001000 {
+ 			#reset-cells = <1>;
+ 		};
+ 
++		sid: efuse@3006000 {
++			compatible = "allwinner,sun50i-h616-sid";
++			reg = <0x03006000 0x1000>;
++			#address-cells = <1>;
++			#size-cells = <1>;
++
++			cpu_speed_grade: cpu-speed-grade@00 {
++				reg = <0x00 0x02>;
++			};
++
++			ths_calibration: thermal-sensor-calibration@14 {
++				reg = <0x14 0x8>;
++			};
++
++			ephy_calibration: ephy-calibration@2c {
++				reg = <0x2c 0x2>;
++			};
++		};
++
+ 		watchdog: watchdog@30090a0 {
+ 			compatible = "allwinner,sun50i-h616-wdt",
+ 				     "allwinner,sun6i-a31-wdt";
+ 			reg = <0x030090a0 0x20>;
+ 			interrupts = <GIC_SPI 50 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&osc24M>;
++			status = "okay";
++		};
++
++		pwm: pwm@300a000 {
++			compatible = "allwinner,sun50i-h616-pwm";
++			reg = <0x0300a000 0x400>;
++			clocks = <&osc24M>, <&ccu CLK_BUS_PWM>;
++			clock-names = "mod", "bus";
++			resets = <&ccu RST_BUS_PWM>;
++			pwm-number = <6>;
++			pwm-base = <0x0>;
++			sunxi-pwms = <&pwm0>, <&pwm1>, <&pwm2>, <&pwm3>, <&pwm4>, <&pwm5>;
++			#pwm-cells = <3>;
++			status = "okay";
++		};
++
++		pwm0: pwm0@0300a000 {
++			compatible = "allwinner,sunxi-pwm0";
++		};
++
++		pwm1: pwm1@0300a000 {
++			compatible = "allwinner,sunxi-pwm1";
++			pinctrl-names = "default";
++			pinctrl-0 = <&pwm1_ph_pin>;
++		};
++
++		pwm2: pwm2@0300a000 {
++			compatible = "allwinner,sunxi-pwm2";
++			pinctrl-names = "default";
++			pinctrl-0 = <&pwm2_ph_pin>;
++		};
++
++		pwm3: pwm3@0300a000 {
++			compatible = "allwinner,sunxi-pwm3";
++			pinctrl-names = "default";
++			pinctrl-0 = <&pwm3_ph_pin>;
++		};
++
++		pwm4: pwm4@0300a000 {
++			compatible = "allwinner,sunxi-pwm4";
++			pinctrl-names = "default";
++			pinctrl-0 = <&pwm4_ph_pin>;
++		};
++
++		pwm5: pwm5@0300a000 {
++			compatible = "allwinner,sunxi-pwm5";
++			pinctrl-names = "default";
++			pinctrl-0 = <&pwm5_pin>;
+ 		};
+ 
+ 		pio: pinctrl@300b000 {
+@@ -168,21 +360,119 @@ ext_rgmii_pins: rgmii-pins {
+ 				drive-strength = <40>;
+ 			};
+ 
+-			i2c0_pins: i2c0-pins {
+-				pins = "PI6", "PI7";
++			/omit-if-no-ref/
++			i2c0_pi_pins: i2c0-pi-pins {
++				pins = "PI5", "PI6";
+ 				function = "i2c0";
+ 			};
+ 
++			/omit-if-no-ref/
++			i2c1_ph_pins: i2c1-ph-pins {
++				pins = "PH0", "PH1";
++				function = "i2c1";
++			};
++
++			/omit-if-no-ref/
++			i2c1_pi_pins: i2c1-pi-pins {
++				pins = "PI7", "PI8";
++				function = "i2c1";
++			};
++
++			/omit-if-no-ref/
++			i2c2_ph_pins: i2c2-ph-pins {
++				pins = "PH2", "PH3";
++				function = "i2c2";
++			};
++
++			/omit-if-no-ref/
++			i2c2_pi_pins: i2c2-pi-pins {
++				pins = "PI9", "PI10";
++				function = "i2c2";
++			};
++
++			/omit-if-no-ref/
+ 			i2c3_ph_pins: i2c3-ph-pins {
+ 				pins = "PH4", "PH5";
+ 				function = "i2c3";
+ 			};
+ 
++			i2c3_pa_pins: i2c3-pa-pins {
++				pins = "PA10", "PA11";
++				function = "i2c3";
++				bias-pull-up;
++			};
++
++			/omit-if-no-ref/
++			i2c4_ph_pins: i2c4-ph-pins {
++				pins = "PH6", "PH7";
++				function = "i2c4";
++			};
++
++			/omit-if-no-ref/
++			i2s3_pins: i2s3-pins {
++				pins = "PH5", "PH6", "PH7", "PH8", "PH9";
++				function = "i2s3";
++			};
++
+ 			ir_rx_pin: ir-rx-pin {
+ 				pins = "PH10";
+ 				function = "ir_rx";
+ 			};
+ 
++			/omit-if-no-ref/
++			pwm1_ph_pin: pwm1-ph-pin {
++				pins = "PH3";
++				function = "pwm1";
++			};
++
++			/omit-if-no-ref/
++			pwm2_ph_pin: pwm2-ph-pin {
++				pins = "PH2";
++				function = "pwm2";
++			};
++
++			/omit-if-no-ref/
++			pwm3_ph_pin: pwm3-ph-pin {
++				pins = "PH0";
++				function = "pwm3";
++			};
++
++			/omit-if-no-ref/
++			pwm4_ph_pin: pwm4-ph-pin {
++				pins = "PH1";
++				function = "pwm4";
++			};
++
++			/omit-if-no-ref/
++			pwm5_pin: pwm5-pin {
++				pins = "PA12";
++				function = "pwm5";
++			};
++
++			/omit-if-no-ref/
++			pwm1_pi_pin: pwm1-pi-pin {
++				pins = "PI11";
++				function = "pwm1";
++			};
++
++			/omit-if-no-ref/
++			pwm2_pi_pin: pwm2-pi-pin {
++				pins = "PI12";
++				function = "pwm2";
++			};
++
++			/omit-if-no-ref/
++			pwm3_pi_pin: pwm3-pi-pin {
++				pins = "PI13";
++				function = "pwm3";
++			};
++
++			/omit-if-no-ref/
++			pwm4_pi_pin: pwm4-pi-pin {
++				pins = "PI14";
++				function = "pwm4";
++			};
++
+ 			mmc0_pins: mmc0-pins {
+ 				pins = "PF0", "PF1", "PF2", "PF3",
+ 				       "PF4", "PF5";
+@@ -209,6 +499,13 @@ mmc2_pins: mmc2-pins {
+ 				bias-pull-up;
+ 			};
+ 
++			rmii_pins: rmii-pins {
++				pins = "PA0", "PA1", "PA2", "PA3", "PA4",
++				       "PA5", "PA6", "PA7", "PA8", "PA9";
++				function = "emac1";
++				drive-strength = <40>;
++			};
++
+ 			/omit-if-no-ref/
+ 			spi0_pins: spi0-pins {
+ 				pins = "PC0", "PC2", "PC4";
+@@ -233,22 +530,64 @@ spi1_cs0_pin: spi1-cs0-pin {
+ 				function = "spi1";
+ 			};
+ 
++			/omit-if-no-ref/
++			spi1_cs1_pin: spi1-cs1-pin {
++				pins = "PH9";
++				function = "spi1";
++			};
++
+ 			uart0_ph_pins: uart0-ph-pins {
+ 				pins = "PH0", "PH1";
+ 				function = "uart0";
+ 			};
+ 
+ 			/omit-if-no-ref/
+-			uart1_pins: uart1-pins {
++			uart1_ph_pins: uart1-ph-pins {
+ 				pins = "PG6", "PG7";
+ 				function = "uart1";
+ 			};
+ 
+ 			/omit-if-no-ref/
+-			uart1_rts_cts_pins: uart1-rts-cts-pins {
++			uart1_ph_rts_cts_pins: uart1-ph-rts-cts-pins {
+ 				pins = "PG8", "PG9";
+ 				function = "uart1";
+ 			};
++
++			/omit-if-no-ref/
++			uart2_ph_pins: uart2-ph-pins {
++				pins = "PH5", "PH6";
++				function = "uart2";
++			};
++
++			/omit-if-no-ref/
++			uart2_ph_rts_cts_pins: uart2-ph-rts-cts-pins {
++				pins = "PH7", "PH8";
++				function = "uart2";
++			};
++
++			/omit-if-no-ref/
++			uart2_pi_pins: uart2-pi-pins {
++				pins = "PI5", "PI6";
++				function = "uart2";
++			};
++
++			/omit-if-no-ref/
++			uart3_pi_pins: uart3-pi-pins {
++				pins = "PI9", "PI10";
++				function = "uart3";
++			};
++
++			/omit-if-no-ref/
++			uart4_pi_pins: uart4-pi-pins {
++				pins = "PI13", "PI14";
++				function = "uart4";
++			};
++
++			/omit-if-no-ref/
++			uart5_ph_pins: uart5-ph-pins {
++				pins = "PH2", "PH3";
++				function = "uart5";
++			};
+ 		};
+ 
+ 		gic: interrupt-controller@3021000 {
+@@ -325,6 +664,101 @@ mmc2: mmc@4022000 {
+ 			#size-cells = <0>;
+ 		};
+ 
++		dma: dma-controller@3002000 {
++			compatible = "allwinner,sun50i-h616-dma";
++			reg = <0x03002000 0x1000>;
++			interrupts = <GIC_SPI 42 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&ccu CLK_BUS_DMA>, <&ccu CLK_MBUS_DMA>;
++			clock-names = "bus", "mbus";
++			dma-channels = <16>;
++			dma-requests = <49>;
++			resets = <&ccu RST_BUS_DMA>;
++			#dma-cells = <1>;
++		};
++
++		codec: codec@05096000 {
++			#sound-dai-cells = <0>;
++			compatible = "allwinner,sun50i-h616-codec";
++			reg = <0x05096000 0x31c>;
++			interrupts = <GIC_SPI 58 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&ccu CLK_BUS_AUDIO_CODEC>,
++				 <&ccu CLK_AUDIO_CODEC_1X>,
++				 <&ccu CLK_AUDIO_CODEC_4X>;
++			clock-names = "apb", "audio-codec-1x", "audio-codec-4x";
++			resets = <&ccu RST_BUS_AUDIO_CODEC>;
++			dmas = <&dma 6>;
++			dma-names = "tx";
++			status = "disabled";
++		};
++
++		ahub_dam_plat:ahub_dam_plat@5097000 {
++			#sound-dai-cells = <0>;
++			/* sound card without pcm for hardware mix setting */
++			compatible	= "allwinner,sunxi-snd-plat-ahub_dam";
++			reg		= <0x05097000 0x1000>;
++			resets		= <&ccu RST_BUS_AUDIO_HUB>;
++			clocks          = <&ccu CLK_AUDIO_CODEC_1X>,
++			                  <&ccu CLK_AUDIO_CODEC_4X>,
++			                  <&ccu CLK_AUDIO_HUB>,
++			                  <&ccu CLK_BUS_AUDIO_HUB>;
++			clock-names     = "clk_pll_audio",
++			                  "clk_pll_audio_4x",
++			                  "clk_audio_hub",
++			                  "clk_bus_audio_hub";
++			status		= "disabled";
++		};
++
++		ahub_dam_mach:ahub_dam_mach {
++			compatible = "allwinner,sunxi-snd-mach";
++			soundcard-mach,name = "ahubdam";
++			status		= "disabled";
++			soundcard-mach,cpu {
++				sound-dai = <&ahub_dam_plat>;
++			};
++			soundcard-mach,codec {
++			};
++		};
++
++		ahub1_plat:ahub1_plat {
++			#sound-dai-cells = <0>;
++			compatible	= "allwinner,sunxi-snd-plat-ahub";
++			apb_num		= <1>;	/* for dma port 4 */
++			dmas		= <&dma 4>, <&dma 4>;
++			dma-names	= "tx", "rx";
++			playback_cma	= <128>;
++			capture_cma	= <128>;
++			tx_fifo_size	= <128>;
++			rx_fifo_size	= <128>;
++
++			tdm_num		= <1>;
++			tx_pin		= <0>;
++			rx_pin		= <0>;
++			status		= "disabled";
++		};
++
++		ahub1_mach:ahub1_mach {
++			compatible = "allwinner,sunxi-snd-mach";
++			soundcard-mach,name = "ahubhdmi";
++
++			soundcard-mach,format		= "i2s";
++			soundcard-mach,frame-master	= <&ahub1_cpu>;
++			soundcard-mach,bitclock-master	= <&ahub1_cpu>;
++			/* soundcard-mach,frame-inversion; */
++			/* soundcard-mach,bitclock-inversion; */
++			soundcard-mach,slot-num		= <2>;
++			soundcard-mach,slot-width	= <32>;
++			status		= "disabled";
++			ahub1_cpu: soundcard-mach,cpu {
++				sound-dai = <&ahub1_plat>;
++				soundcard-mach,pll-fs	= <4>;
++				soundcard-mach,mclk-fs	= <0>;
++			};
++
++			ahub1_codec: soundcard-mach,codec {
++				sound-dai = <&hdmi>;
++			};
++		};
++
+ 		uart0: serial@5000000 {
+ 			compatible = "snps,dw-apb-uart";
+ 			reg = <0x05000000 0x400>;
+@@ -400,7 +834,7 @@ i2c0: i2c@5002000 {
+ 			clocks = <&ccu CLK_BUS_I2C0>;
+ 			resets = <&ccu RST_BUS_I2C0>;
+ 			pinctrl-names = "default";
+-			pinctrl-0 = <&i2c0_pins>;
++			pinctrl-0 = <&i2c0_pi_pins>;
+ 			status = "disabled";
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+@@ -414,6 +848,8 @@ i2c1: i2c@5002400 {
+ 			interrupts = <GIC_SPI 7 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&ccu CLK_BUS_I2C1>;
+ 			resets = <&ccu RST_BUS_I2C1>;
++			pinctrl-names = "default";
++			pinctrl-0 = <&i2c1_ph_pins>;
+ 			status = "disabled";
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+@@ -427,6 +863,8 @@ i2c2: i2c@5002800 {
+ 			interrupts = <GIC_SPI 8 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&ccu CLK_BUS_I2C2>;
+ 			resets = <&ccu RST_BUS_I2C2>;
++			pinctrl-names = "default";
++			pinctrl-0 = <&i2c2_ph_pins>;
+ 			status = "disabled";
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+@@ -440,6 +878,8 @@ i2c3: i2c@5002c00 {
+ 			interrupts = <GIC_SPI 9 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&ccu CLK_BUS_I2C3>;
+ 			resets = <&ccu RST_BUS_I2C3>;
++			pinctrl-names = "default";
++			pinctrl-0 = <&i2c3_ph_pins>;
+ 			status = "disabled";
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+@@ -453,6 +893,8 @@ i2c4: i2c@5003000 {
+ 			interrupts = <GIC_SPI 10 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&ccu CLK_BUS_I2C4>;
+ 			resets = <&ccu RST_BUS_I2C4>;
++			pinctrl-names = "default";
++			pinctrl-0 = <&i2c4_ph_pins>;
+ 			status = "disabled";
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+@@ -466,6 +908,10 @@ spi0: spi@5010000 {
+ 			clocks = <&ccu CLK_BUS_SPI0>, <&ccu CLK_SPI0>;
+ 			clock-names = "ahb", "mod";
+ 			resets = <&ccu RST_BUS_SPI0>;
++			pinctrl-names = "default";
++			pinctrl-0 = <&spi0_pins>;
++			dmas = <&dma 22>, <&dma 22>;
++			dma-names = "rx", "tx";
+ 			status = "disabled";
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+@@ -479,6 +925,10 @@ spi1: spi@5011000 {
+ 			clocks = <&ccu CLK_BUS_SPI1>, <&ccu CLK_SPI1>;
+ 			clock-names = "ahb", "mod";
+ 			resets = <&ccu RST_BUS_SPI1>;
++			pinctrl-names = "default";
++			pinctrl-0 = <&spi1_pins>, <&spi1_cs1_pin>;
++			dmas = <&dma 23>, <&dma 23>;
++			dma-names = "rx", "tx";
+ 			status = "disabled";
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+@@ -504,6 +954,35 @@ mdio0: mdio {
+ 			};
+ 		};
+ 
++		emac1: ethernet@5030000 {
++			compatible = "allwinner,sunxi-gmac";
++			reg = <0x05030000 0x10000>,
++			      <0x03000034 0x4>;
++			reg-names = "gmac1_reg","ephy_reg";
++			interrupts = <GIC_SPI 15 IRQ_TYPE_LEVEL_HIGH>;
++			interrupt-names = "gmacirq";
++			resets = <&ccu RST_BUS_EMAC1>;
++			reset-names = "stmmaceth";
++			clocks = <&ccu CLK_BUS_EMAC1>,<&ccu CLK_EMAC_25M>;
++			clock-names = "bus-emac1","emac-25m";
++			pinctrl-0 = <&rmii_pins>;
++			pinctrl-names = "default";
++			phy-mode = "rmii";
++			tx-delay = <7>;
++			rx-delay = <31>;
++			phy-rst;
++			gmac-power0;
++			gmac-power1;
++			gmac-power2;
++			status = "disabled";
++
++			mdio1: mdio {
++				compatible = "ethernet-phy-ieee802.3-c22";
++				#address-cells = <1>;
++				#size-cells = <0>;
++			};
++		};
++
+ 		usbotg: usb@5100000 {
+ 			compatible = "allwinner,sun50i-h616-musb",
+ 				     "allwinner,sun8i-h3-musb";
+@@ -559,9 +1038,11 @@ ehci0: usb@5101000 {
+ 			interrupts = <GIC_SPI 26 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&ccu CLK_BUS_OHCI0>,
+ 				 <&ccu CLK_BUS_EHCI0>,
+-				 <&ccu CLK_USB_OHCI0>;
++				 <&ccu CLK_USB_OHCI0>,
++				 <&ccu CLK_USB_PHY2>;
+ 			resets = <&ccu RST_BUS_OHCI0>,
+-				 <&ccu RST_BUS_EHCI0>;
++				 <&ccu RST_BUS_EHCI0>,
++				 <&ccu RST_USB_PHY2>;
+ 			phys = <&usbphy 0>;
+ 			phy-names = "usb";
+ 			status = "disabled";
+@@ -573,8 +1054,10 @@ ohci0: usb@5101400 {
+ 			reg = <0x05101400 0x100>;
+ 			interrupts = <GIC_SPI 27 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&ccu CLK_BUS_OHCI0>,
+-				 <&ccu CLK_USB_OHCI0>;
+-			resets = <&ccu RST_BUS_OHCI0>;
++				 <&ccu CLK_USB_OHCI0>,
++				 <&ccu CLK_USB_PHY2>;
++			resets = <&ccu RST_BUS_OHCI0>,
++				 <&ccu RST_USB_PHY2>;
+ 			phys = <&usbphy 0>;
+ 			phy-names = "usb";
+ 			status = "disabled";
+@@ -587,9 +1070,11 @@ ehci1: usb@5200000 {
+ 			interrupts = <GIC_SPI 28 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&ccu CLK_BUS_OHCI1>,
+ 				 <&ccu CLK_BUS_EHCI1>,
+-				 <&ccu CLK_USB_OHCI1>;
++				 <&ccu CLK_USB_OHCI1>,
++				 <&ccu CLK_USB_PHY2>;
+ 			resets = <&ccu RST_BUS_OHCI1>,
+-				 <&ccu RST_BUS_EHCI1>;
++				 <&ccu RST_BUS_EHCI1>,
++				 <&ccu RST_USB_PHY2>;
+ 			phys = <&usbphy 1>;
+ 			phy-names = "usb";
+ 			status = "disabled";
+@@ -601,8 +1086,10 @@ ohci1: usb@5200400 {
+ 			reg = <0x05200400 0x100>;
+ 			interrupts = <GIC_SPI 29 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&ccu CLK_BUS_OHCI1>,
+-				 <&ccu CLK_USB_OHCI1>;
+-			resets = <&ccu RST_BUS_OHCI1>;
++				 <&ccu CLK_USB_OHCI1>,
++				 <&ccu CLK_USB_PHY2>;
++			resets = <&ccu RST_BUS_OHCI1>,
++				 <&ccu RST_USB_PHY2>;
+ 			phys = <&usbphy 1>;
+ 			phy-names = "usb";
+ 			status = "disabled";
+@@ -643,9 +1130,11 @@ ehci3: usb@5311000 {
+ 			interrupts = <GIC_SPI 32 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&ccu CLK_BUS_OHCI3>,
+ 				 <&ccu CLK_BUS_EHCI3>,
+-				 <&ccu CLK_USB_OHCI3>;
++				 <&ccu CLK_USB_OHCI3>,
++				 <&ccu CLK_USB_PHY2>;
+ 			resets = <&ccu RST_BUS_OHCI3>,
+-				 <&ccu RST_BUS_EHCI3>;
++				 <&ccu RST_BUS_EHCI3>,
++				 <&ccu RST_USB_PHY2>;
+ 			phys = <&usbphy 3>;
+ 			phy-names = "usb";
+ 			status = "disabled";
+@@ -657,13 +1146,156 @@ ohci3: usb@5311400 {
+ 			reg = <0x05311400 0x100>;
+ 			interrupts = <GIC_SPI 33 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&ccu CLK_BUS_OHCI3>,
+-				 <&ccu CLK_USB_OHCI3>;
+-			resets = <&ccu RST_BUS_OHCI3>;
++				 <&ccu CLK_USB_OHCI3>,
++				 <&ccu CLK_USB_PHY2>;
++			resets = <&ccu RST_BUS_OHCI3>,
++				 <&ccu RST_USB_PHY2>;
+ 			phys = <&usbphy 3>;
+ 			phy-names = "usb";
+ 			status = "disabled";
+ 		};
+ 
++		hdmi: hdmi@6000000 {
++			#sound-dai-cells = <0>;
++			compatible = "allwinner,sun50i-h616-dw-hdmi",
++				     "allwinner,sun50i-h6-dw-hdmi";
++			reg = <0x06000000 0x10000>;
++			reg-io-width = <1>;
++			interrupts = <GIC_SPI 63 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&ccu CLK_BUS_HDMI>, <&ccu CLK_HDMI_SLOW>,
++				 <&ccu CLK_HDMI>, <&ccu CLK_HDMI_CEC>,
++				 <&ccu CLK_HDCP>, <&ccu CLK_BUS_HDCP>;
++			clock-names = "iahb", "isfr", "tmds", "cec", "hdcp",
++				      "hdcp-bus";
++			resets = <&ccu RST_BUS_HDMI>, <&ccu RST_BUS_HDCP>;
++			reset-names = "ctrl", "hdcp";
++			phys = <&hdmi_phy>;
++			phy-names = "phy";
++			status = "disabled";
++
++			ports {
++				#address-cells = <1>;
++				#size-cells = <0>;
++
++				hdmi_in: port@0 {
++					reg = <0>;
++
++					hdmi_in_tcon_top: endpoint {
++						remote-endpoint = <&tcon_top_hdmi_out_hdmi>;
++					};
++				};
++
++				hdmi_out: port@1 {
++					reg = <1>;
++				};
++			};
++		};
++
++		hdmi_phy: hdmi-phy@6010000 {
++			compatible = "allwinner,sun50i-h616-hdmi-phy";
++			reg = <0x06010000 0x10000>;
++			clocks = <&ccu CLK_BUS_HDMI>, <&ccu CLK_HDMI_SLOW>;
++			clock-names = "bus", "mod";
++			resets = <&ccu RST_BUS_HDMI_SUB>;
++			reset-names = "phy";
++			#phy-cells = <0>;
++		};
++
++		tcon_top: tcon-top@6510000 {
++			compatible = "allwinner,sun50i-h6-tcon-top";
++			reg = <0x06510000 0x1000>;
++			clocks = <&ccu CLK_BUS_TCON_TOP>,
++				 <&ccu CLK_TCON_TV0>;
++			clock-names = "bus",
++				      "tcon-tv0";
++			clock-output-names = "tcon-top-tv0";
++			resets = <&ccu RST_BUS_TCON_TOP>;
++			#clock-cells = <1>;
++
++			ports {
++				#address-cells = <1>;
++				#size-cells = <0>;
++
++				tcon_top_mixer0_in: port@0 {
++					#address-cells = <1>;
++					#size-cells = <0>;
++					reg = <0>;
++
++					tcon_top_mixer0_in_mixer0: endpoint@0 {
++						reg = <0>;
++						remote-endpoint = <&mixer0_out_tcon_top_mixer0>;
++					};
++				};
++
++				tcon_top_mixer0_out: port@1 {
++					#address-cells = <1>;
++					#size-cells = <0>;
++					reg = <1>;
++
++					tcon_top_mixer0_out_tcon_tv: endpoint@2 {
++						reg = <2>;
++						remote-endpoint = <&tcon_tv_in_tcon_top_mixer0>;
++					};
++				};
++
++				tcon_top_hdmi_in: port@4 {
++					#address-cells = <1>;
++					#size-cells = <0>;
++					reg = <4>;
++
++					tcon_top_hdmi_in_tcon_tv: endpoint@0 {
++						reg = <0>;
++						remote-endpoint = <&tcon_tv_out_tcon_top>;
++					};
++				};
++
++				tcon_top_hdmi_out: port@5 {
++					reg = <5>;
++
++					tcon_top_hdmi_out_hdmi: endpoint {
++						remote-endpoint = <&hdmi_in_tcon_top>;
++					};
++				};
++			};
++		};
++
++		tcon_tv: lcd-controller@6515000 {
++			compatible = "allwinner,sun50i-h6-tcon-tv",
++				     "allwinner,sun8i-r40-tcon-tv";
++			reg = <0x06515000 0x1000>;
++			interrupts = <GIC_SPI 66 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&ccu CLK_BUS_TCON_TV0>,
++				 <&tcon_top CLK_TCON_TOP_TV0>;
++			clock-names = "ahb",
++				      "tcon-ch1";
++			resets = <&ccu RST_BUS_TCON_TV0>;
++			reset-names = "lcd";
++
++			ports {
++				#address-cells = <1>;
++				#size-cells = <0>;
++
++				tcon_tv_in: port@0 {
++					reg = <0>;
++
++					tcon_tv_in_tcon_top_mixer0: endpoint {
++						remote-endpoint = <&tcon_top_mixer0_out_tcon_tv>;
++					};
++				};
++
++				tcon_tv_out: port@1 {
++					#address-cells = <1>;
++					#size-cells = <0>;
++					reg = <1>;
++
++					tcon_tv_out_tcon_top: endpoint@1 {
++						reg = <1>;
++						remote-endpoint = <&tcon_top_hdmi_in_tcon_tv>;
++					};
++				};
++			};
++		};
++
+ 		rtc: rtc@7000000 {
+ 			compatible = "allwinner,sun50i-h616-rtc";
+ 			reg = <0x07000000 0x400>;
+@@ -688,11 +1320,14 @@ r_ccu: clock@7010000 {
+ 		r_pio: pinctrl@7022000 {
+ 			compatible = "allwinner,sun50i-h616-r-pinctrl";
+ 			reg = <0x07022000 0x400>;
++			interrupts = <GIC_SPI 43 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&r_ccu CLK_R_APB1>, <&osc24M>,
+ 				 <&rtc CLK_OSC32K>;
+ 			clock-names = "apb", "hosc", "losc";
+ 			gpio-controller;
+ 			#gpio-cells = <3>;
++			interrupt-controller;
++			#interrupt-cells = <3>;
+ 
+ 			/omit-if-no-ref/
+ 			r_i2c_pins: r-i2c-pins {
+@@ -748,14 +1383,161 @@ r_rsb: rsb@7083000 {
+ 			#size-cells = <0>;
+ 		};
+ 
+-		addr_mgt {
++		ths: thermal-sensor@5070400 {
++			/* The Thermal Sensor Controller(THS) embeds four thermal sensors,
++			sensor0 is located in GPU
++			sensor1 is located in VE
++			sensor2 is located in CPU
++			sensor3 is located in DDR
++			*/
++			compatible = "allwinner,sun50i-h616-ths";
++			reg = <0x05070400 0x400>;
++			interrupts = <GIC_SPI 19 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&ccu CLK_BUS_THS>;
++			clock-names = "bus";
++			resets = <&ccu RST_BUS_THS>;
++			nvmem-cells = <&ths_calibration>;
++			nvmem-cell-names = "calibration";
++			#thermal-sensor-cells = <1>;
++		};
++
++		dump_reg: dump_reg@20000 {
++			compatible = "allwinner,sunxi-dump-reg";
++			reg = <0x0 0x03001000 0x0 0x0f20>;
++			status = "okay";
++		};
++
++		sunxi-info {
++			compatible = "allwinner,sun50i-h616-sys-info";
++			status = "okay";
++		};
++
++		addr_mgt: addr-mgt {
+ 			compatible = "allwinner,sunxi-addr_mgt";
+-			type_addr_wifi = <0x00>;
+-			type_addr_bt = <0x00>;
+-			type_addr_eth = <0x00>;
++			type_addr_wifi = <0x2>;
++			type_addr_bt = <0x2>;
++			type_addr_eth = <0x2>;
+ 			status = "okay";
+-			linux,phandle = <0x179>;
+-			phandle = <0x179>;
++		};
++
++		r_lradc: lradc@5070800 {
++			compatible = "allwinner,sun50i-h616-lradc";
++			reg = <0x05070800 0x400>;
++			interrupts = <GIC_SPI 20 IRQ_TYPE_EDGE_RISING>;
++			clocks = <&ccu CLK_BUS_KEYADC>;
++			resets = <&ccu RST_BUS_KEYADC>;
++			status = "disabled";
++		};
++	};
++
++	thermal-zones {
++		cpu-thermal {
++			polling-delay-passive = <0>;
++			polling-delay = <0>;
++			thermal-sensors = <&ths 2>;
++
++			trips {
++				cpu_alert: cpu-alert {
++					temperature = <85000>;
++					hysteresis = <2000>;
++					type = "passive";
++				};
++
++				cpu-crit {
++					temperature = <100000>;
++					hysteresis = <0>;
++					type = "critical";
++				};
++			};
++
++			cooling-maps {
++				map0 {
++					trip = <&cpu_alert>;
++					cooling-device = <&cpu0 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>,
++					                 <&cpu1 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>,
++					                 <&cpu2 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>,
++					                 <&cpu3 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
++				};
++			};
++		};
++
++		gpu-thermal {
++			polling-delay-passive = <0>;
++			polling-delay = <0>;
++			thermal-sensors = <&ths 0>;
++
++			trips {
++				gpu_alert: gpu-alert {
++					temperature = <85000>;
++					hysteresis = <2000>;
++					type = "passive";
++				};
++
++				gpu-crit {
++					temperature = <100000>;
++					hysteresis = <0>;
++					type = "critical";
++				};
++			};
++
++			cooling-maps {
++				map0 {
++					trip = <&gpu_alert>;
++					cooling-device = <&gpu THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
++				};
++			};
++		};
++
++		ve-thermal {
++			polling-delay-passive = <0>;
++			polling-delay = <0>;
++			thermal-sensors = <&ths 1>;
++
++			trips {
++				ve_alert: ve-alert {
++					temperature = <85000>;
++					hysteresis = <2000>;
++					type = "passive";
++				};
++			};
++		};
++
++		ddr-thermal {
++			polling-delay-passive = <0>;
++			polling-delay = <0>;
++			thermal-sensors = <&ths 3>;
++
++			trips {
++				ddr_alert: ddr-alert {
++					temperature = <85000>;
++					hysteresis = <2000>;
++					type = "passive";
++				};
++			};
++		};
++	};
++
++	gpu_opp_table: gpu-opp-table {
++		compatible = "operating-points-v2";
++		opp-125000000 {
++			opp-hz = /bits/ 64 <125000000>;
++			opp-microvolt = <810000>;
++		};
++		opp-250000000 {
++			opp-hz = /bits/ 64 <250000000>;
++			opp-microvolt = <810000>;
++		};
++		opp-432000000 {
++			opp-hz = /bits/ 64 <432000000>;
++			opp-microvolt = <810000>;
++		};
++		opp-600000000 {
++			opp-hz = /bits/ 64 <600000000>;
++			opp-microvolt = <960000>;
++		};
++		opp-800000000 {
++			opp-hz = /bits/ 64 <800000000>;
++			opp-microvolt = <1080000>;
+ 		};
+ 	};
+ };
+diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
+index 9da8235cb..b7244257c 100644
+--- a/drivers/mfd/Kconfig
++++ b/drivers/mfd/Kconfig
+@@ -179,6 +179,15 @@ config MFD_AC100
+ 	  This driver include only the core APIs. You have to select individual
+ 	  components like codecs or RTC under the corresponding menus.
+ 
++config MFD_AC200
++	bool "X-Powers AC200"
++	select MFD_CORE
++	depends on I2C
++	help
++	  If you say Y here you get support for the X-Powers AC200 IC.
++	  This driver include only the core APIs. You have to select individual
++	  components like Ethernet PHY or RTC under the corresponding menus.
++
+ config MFD_AXP20X
+ 	tristate
+ 	select MFD_CORE
+diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
+index 7ed3ef4a6..f2e05f275 100644
+--- a/drivers/mfd/Makefile
++++ b/drivers/mfd/Makefile
+@@ -144,6 +144,7 @@ obj-$(CONFIG_MFD_DA9052_SPI)	+= da9052-spi.o
+ obj-$(CONFIG_MFD_DA9052_I2C)	+= da9052-i2c.o
+ 
+ obj-$(CONFIG_MFD_AC100)		+= ac100.o
++obj-$(CONFIG_MFD_AC200)		+= sunxi-ac200.o
+ obj-$(CONFIG_MFD_AXP20X)	+= axp20x.o
+ obj-$(CONFIG_MFD_AXP20X_I2C)	+= axp20x-i2c.o
+ obj-$(CONFIG_MFD_AXP20X_RSB)	+= axp20x-rsb.o
+diff --git a/drivers/mfd/axp20x-i2c.c b/drivers/mfd/axp20x-i2c.c
+index 8fd6727dc..ad1855b3f 100644
+--- a/drivers/mfd/axp20x-i2c.c
++++ b/drivers/mfd/axp20x-i2c.c
+@@ -64,6 +64,7 @@ static const struct of_device_id axp20x_i2c_of_match[] = {
+ 	{ .compatible = "x-powers,axp209", .data = (void *)AXP209_ID },
+ 	{ .compatible = "x-powers,axp221", .data = (void *)AXP221_ID },
+ 	{ .compatible = "x-powers,axp223", .data = (void *)AXP223_ID },
++	{ .compatible = "x-powers,axp313a", .data = (void *)AXP313A_ID},
+ 	{ .compatible = "x-powers,axp803", .data = (void *)AXP803_ID },
+ 	{ .compatible = "x-powers,axp806", .data = (void *)AXP806_ID },
+ 	{ },
+@@ -77,6 +78,7 @@ static const struct i2c_device_id axp20x_i2c_id[] = {
+ 	{ "axp209", 0 },
+ 	{ "axp221", 0 },
+ 	{ "axp223", 0 },
++	{ "axp313a", 0 },
+ 	{ "axp803", 0 },
+ 	{ "axp806", 0 },
+ 	{ },
+diff --git a/drivers/mfd/axp20x.c b/drivers/mfd/axp20x.c
+index 880c41fa7..21b239d33 100644
+--- a/drivers/mfd/axp20x.c
++++ b/drivers/mfd/axp20x.c
+@@ -39,6 +39,7 @@ static const char * const axp20x_model_names[] = {
+ 	"AXP221",
+ 	"AXP223",
+ 	"AXP288",
++	"AXP313a",
+ 	"AXP803",
+ 	"AXP806",
+ 	"AXP809",
+@@ -154,6 +155,24 @@ static const struct regmap_range axp806_writeable_ranges[] = {
+ 	regmap_reg_range(AXP806_REG_ADDR_EXT, AXP806_REG_ADDR_EXT),
+ };
+ 
++static const struct regmap_range axp313a_writeable_ranges[] = {
++	regmap_reg_range(AXP313A_ON_INDICATE, AXP313A_IRQ_STATE),
++};
++
++static const struct regmap_range axp313a_volatile_ranges[] = {
++	regmap_reg_range(AXP313A_ON_INDICATE, AXP313A_IRQ_STATE),
++};
++
++static const struct regmap_access_table axp313a_writeable_table = {
++	.yes_ranges = axp313a_writeable_ranges,
++	.n_yes_ranges = ARRAY_SIZE(axp313a_writeable_ranges),
++};
++
++static const struct regmap_access_table axp313a_volatile_table = {
++	.yes_ranges = axp313a_volatile_ranges,
++	.n_yes_ranges = ARRAY_SIZE(axp313a_volatile_ranges),
++};
++
+ static const struct regmap_range axp806_volatile_ranges[] = {
+ 	regmap_reg_range(AXP20X_IRQ1_STATE, AXP20X_IRQ2_STATE),
+ };
+@@ -226,6 +245,11 @@ static const struct resource axp803_pek_resources[] = {
+ 	DEFINE_RES_IRQ_NAMED(AXP803_IRQ_PEK_FAL_EDGE, "PEK_DBF"),
+ };
+ 
++static struct resource axp313a_pek_resources[] = {
++	DEFINE_RES_IRQ_NAMED(AXP313A_IRQ_PEK_RIS_EDGE, "PEK_DBR"),
++	DEFINE_RES_IRQ_NAMED(AXP313A_IRQ_PEK_FAL_EDGE, "PEK_DBF"),
++};
++
+ static const struct resource axp806_pek_resources[] = {
+ 	DEFINE_RES_IRQ_NAMED(AXP806_IRQ_POK_RISE, "PEK_DBR"),
+ 	DEFINE_RES_IRQ_NAMED(AXP806_IRQ_POK_FALL, "PEK_DBF"),
+@@ -272,6 +296,15 @@ static const struct regmap_config axp288_regmap_config = {
+ 	.cache_type	= REGCACHE_RBTREE,
+ };
+ 
++static const struct regmap_config axp313a_regmap_config = {
++	.reg_bits = 8,
++	.val_bits = 8,
++	.wr_table = &axp313a_writeable_table,
++	.volatile_table = &axp313a_volatile_table,
++	.max_register = AXP313A_IRQ_STATE,
++	.cache_type = REGCACHE_RBTREE,
++};
++
+ static const struct regmap_config axp806_regmap_config = {
+ 	.reg_bits	= 8,
+ 	.val_bits	= 8,
+@@ -415,6 +448,16 @@ static const struct regmap_irq axp288_regmap_irqs[] = {
+ 	INIT_REGMAP_IRQ(AXP288, BC_USB_CHNG,            5, 1),
+ };
+ 
++static const struct regmap_irq axp313a_regmap_irqs[] = {
++	INIT_REGMAP_IRQ(AXP313A, PEK_RIS_EDGE,		0, 7),
++	INIT_REGMAP_IRQ(AXP313A, PEK_FAL_EDGE,		0, 6),
++	INIT_REGMAP_IRQ(AXP313A, PEK_SHORT,		0, 5),
++	INIT_REGMAP_IRQ(AXP313A, PEK_LONG,		0, 4),
++	INIT_REGMAP_IRQ(AXP313A, DCDC3_V_LOW,		0, 3),
++	INIT_REGMAP_IRQ(AXP313A, DCDC2_V_LOW,		0, 2),
++	INIT_REGMAP_IRQ(AXP313A, DIE_TEMP_HIGH,		0, 0),
++};
++
+ static const struct regmap_irq axp803_regmap_irqs[] = {
+ 	INIT_REGMAP_IRQ(AXP803, ACIN_OVER_V,		0, 7),
+ 	INIT_REGMAP_IRQ(AXP803, ACIN_PLUGIN,		0, 6),
+@@ -552,6 +595,18 @@ static const struct regmap_irq_chip axp288_regmap_irq_chip = {
+ 
+ };
+ 
++static const struct regmap_irq_chip axp313a_regmap_irq_chip = {
++	.name			= "axp313a_irq_chip",
++	.status_base		= AXP313A_IRQ_STATE,
++	.ack_base		= AXP313A_IRQ_STATE,
++	.unmask_base		= AXP313A_IRQ_EN,
++	.mask_invert		= true,
++	.init_ack_masked	= true,
++	.irqs			= axp313a_regmap_irqs,
++	.num_irqs		= ARRAY_SIZE(axp313a_regmap_irqs),
++	.num_regs		= 1,
++};
++
+ static const struct regmap_irq_chip axp803_regmap_irq_chip = {
+ 	.name			= "axp803",
+ 	.status_base		= AXP20X_IRQ1_STATE,
+@@ -683,6 +738,22 @@ static const struct mfd_cell axp152_cells[] = {
+ 	},
+ };
+ 
++static struct mfd_cell axp313a_cells[] = {
++	{
++		.name           = "axp221-pek",
++		.num_resources  = ARRAY_SIZE(axp313a_pek_resources),
++		.resources      = axp313a_pek_resources,
++	}, {
++		.name = "axp20x-regulator",
++	},
++};
++
++static struct mfd_cell axp313a_cells_noirq[] = {
++	{
++		.name = "axp20x-regulator",
++	},
++};
++
+ static const struct resource axp288_adc_resources[] = {
+ 	DEFINE_RES_IRQ_NAMED(AXP288_IRQ_GPADC, "GPADC"),
+ };
+@@ -838,7 +909,11 @@ static void axp20x_power_off(void)
+ 	if (axp20x_pm_power_off->variant == AXP288_ID)
+ 		return;
+ 
+-	regmap_write(axp20x_pm_power_off->regmap, AXP20X_OFF_CTRL,
++	if (axp20x_pm_power_off->variant == AXP313A_ID)
++		regmap_write(axp20x_pm_power_off->regmap, AXP313A_POWER_STATUS,
++		     AXP20X_OFF);
++	else
++		regmap_write(axp20x_pm_power_off->regmap, AXP20X_OFF_CTRL,
+ 		     AXP20X_OFF);
+ 
+ 	/* Give capacitors etc. time to drain to avoid kernel panic msg. */
+@@ -900,6 +975,17 @@ int axp20x_match_device(struct axp20x_dev *axp20x)
+ 		axp20x->regmap_irq_chip = &axp288_regmap_irq_chip;
+ 		axp20x->irq_flags = IRQF_TRIGGER_LOW;
+ 		break;
++	case AXP313A_ID:
++                if (axp20x->irq > 0) {
++			axp20x->nr_cells = ARRAY_SIZE(axp313a_cells);
++			axp20x->cells = axp313a_cells;
++		} else {
++			axp20x->nr_cells = ARRAY_SIZE(axp313a_cells_noirq);
++			axp20x->cells = axp313a_cells_noirq;
++		}
++		axp20x->regmap_cfg = &axp313a_regmap_config;
++		axp20x->regmap_irq_chip = &axp313a_regmap_irq_chip;
++		break;
+ 	case AXP803_ID:
+ 		axp20x->nr_cells = ARRAY_SIZE(axp803_cells);
+ 		axp20x->cells = axp803_cells;
+@@ -1009,6 +1095,9 @@ int axp20x_device_probe(struct axp20x_dev *axp20x)
+ 		return ret;
+ 	}
+ 
++	if (axp20x->variant == AXP313A_ID)
++		pm_power_off = NULL;
++
+ 	if (!pm_power_off) {
+ 		axp20x_pm_power_off = axp20x;
+ 		pm_power_off = axp20x_power_off;
+diff --git a/drivers/mfd/sunxi-ac200.c b/drivers/mfd/sunxi-ac200.c
+new file mode 100644
+index 000000000..8a4c2039e
+--- /dev/null
++++ b/drivers/mfd/sunxi-ac200.c
+@@ -0,0 +1,286 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * MFD core driver for X-Powers' AC200 IC
++ *
++ * The AC200 is a chip which is co-packaged with Allwinner H6 SoC and
++ * includes analog audio codec, analog TV encoder, ethernet PHY, eFuse
++ * and RTC.
++ *
++ * Copyright (c) 2020 Jernej Skrabec <jernej.skrabec@siol.net>
++ */
++
++#include <linux/i2c.h>
++#include <linux/interrupt.h>
++#include <linux/kernel.h>
++#include <linux/mfd/core.h>
++#include <linux/mfd/ac200.h>
++#include <linux/module.h>
++#include <linux/of.h>
++#include <linux/nvmem-consumer.h>
++
++#define SUNXI_AC300_KEY	(0x1 << 8)
++
++/* Interrupts */
++#define AC200_IRQ_RTC  0
++#define AC200_IRQ_EPHY 1
++#define AC200_IRQ_TVE  2
++
++/* IRQ enable register */
++#define AC200_SYS_IRQ_ENABLE_OUT_EN BIT(15)
++#define AC200_SYS_IRQ_ENABLE_RTC    BIT(12)
++#define AC200_SYS_IRQ_ENABLE_EPHY   BIT(8)
++#define AC200_SYS_IRQ_ENABLE_TVE    BIT(4)
++
++static const struct regmap_range_cfg ac200_range_cfg[] = {
++	{
++		.range_min = AC200_SYS_VERSION,
++		.range_max = AC200_IC_CHARA1,
++		.selector_reg = AC200_TWI_REG_ADDR_H,
++		.selector_mask = 0xff,
++		.selector_shift = 0,
++		.window_start = 0,
++		.window_len = 256,
++	}
++};
++
++static const struct regmap_config ac200_regmap_config = {
++	.name = "ac200",
++	.reg_bits	= 8,
++	.val_bits	= 16,
++	.ranges		= ac200_range_cfg,
++	.num_ranges	= ARRAY_SIZE(ac200_range_cfg),
++	.max_register	= AC200_IC_CHARA1,
++};
++
++static const struct regmap_irq ac200_regmap_irqs[] = {
++	REGMAP_IRQ_REG(AC200_IRQ_RTC,  0, AC200_SYS_IRQ_ENABLE_RTC),
++	REGMAP_IRQ_REG(AC200_IRQ_EPHY, 0, AC200_SYS_IRQ_ENABLE_EPHY),
++	REGMAP_IRQ_REG(AC200_IRQ_TVE,  0, AC200_SYS_IRQ_ENABLE_TVE),
++};
++
++static const struct regmap_irq_chip ac200_regmap_irq_chip = {
++	.name			= "ac200_irq_chip",
++	.status_base		= AC200_SYS_IRQ_STATUS,
++	.mask_base		= AC200_SYS_IRQ_ENABLE,
++	.mask_invert		= true,
++	.irqs			= ac200_regmap_irqs,
++	.num_irqs		= ARRAY_SIZE(ac200_regmap_irqs),
++	.num_regs		= 1,
++};
++
++static const struct resource ephy_resource[] = {
++	DEFINE_RES_IRQ(AC200_IRQ_EPHY),
++};
++
++static const struct mfd_cell ac200_cells[] = {
++	{
++		.name		= "ac200-ephy",
++		.num_resources	= ARRAY_SIZE(ephy_resource),
++		.resources	= ephy_resource,
++		.of_compatible	= "x-powers,ac200-ephy",
++	},
++	{
++		.name = "acx00-codec",
++		.of_compatible	= "x-powers,ac200-codec",
++	},
++};
++
++atomic_t ac200_en;
++
++int ac200_enable(void)
++{
++    return atomic_read(&ac200_en);
++}
++
++static uint16_t ephy_caldata = 0;
++
++static int sun50i_ephy_get_calibrate(struct device *dev)
++{
++	struct nvmem_cell *calcell;
++	uint16_t *caldata;
++	size_t callen;
++	int ret = 0;
++
++	calcell = devm_nvmem_cell_get(dev, "calibration");
++	if (IS_ERR(calcell)) {
++		dev_err_probe(dev, PTR_ERR(calcell),
++			      "Failed to get calibration nvmem cell (%pe)\n",
++			      calcell);
++
++		if (PTR_ERR(calcell) == -EPROBE_DEFER)
++			return -EPROBE_DEFER;
++		goto out;
++	}
++
++	caldata = nvmem_cell_read(calcell, &callen);
++	if (IS_ERR(caldata)) {
++		ret = PTR_ERR(caldata);
++		dev_err(dev, "Failed to read calibration data (%pe)\n",
++			caldata);
++		goto out;
++	}
++
++    ephy_caldata = *caldata;
++	kfree(caldata);
++out:
++	return ret;
++}
++
++uint16_t sun50i_ephy_calibrate_value(void)
++{
++    return ephy_caldata;
++}
++
++static int ac200_i2c_probe(struct i2c_client *i2c,
++                           const struct i2c_device_id *id)
++{
++    struct device *dev = &i2c->dev;
++    struct ac200_dev *ac200;
++    uint32_t ephy_cal;
++    int ret;
++
++    // 24Mhz clock for both ac200 and ac300 devices
++    ac200 = devm_kzalloc(dev, sizeof(*ac200), GFP_KERNEL);
++    if (!ac200)
++        return -ENOMEM;
++
++    ac200->clk = devm_clk_get(dev, NULL);
++    if (IS_ERR(ac200->clk)) {
++        dev_err(dev, "Can't obtain the clock!\n");
++        return PTR_ERR(ac200->clk);
++    }
++
++    ret = clk_prepare_enable(ac200->clk);
++    if (ret) {
++        dev_err(dev, "rclk_prepare_enable failed! \n");
++        return ret;
++    }
++
++    ret = sun50i_ephy_get_calibrate(dev);
++	if (ret) {
++        dev_err(dev, "sun50i get ephy id failed\n");
++        return ret;
++    }
++    ephy_cal = sun50i_ephy_calibrate_value();
++
++    if (ephy_cal & SUNXI_AC300_KEY) {
++        pr_warn("it's ac300, skip the ac200 init!\n");
++        return -EINVAL;
++    } else {
++        pr_warn("it's ac200, ac200 init start!\n");
++    }
++
++    i2c_set_clientdata(i2c, ac200);
++
++    ac200->regmap = devm_regmap_init_i2c(i2c, &ac200_regmap_config);
++    if (IS_ERR(ac200->regmap))
++    {
++        ret = PTR_ERR(ac200->regmap);
++        dev_err(dev, "regmap init failed: %d\n", ret);
++        return ret;
++    }
++
++    /* do a reset to put chip in a known state */
++    ret = regmap_write(ac200->regmap, AC200_SYS_CONTROL, 0);
++    if (ret)
++    {
++        dev_err(dev, "AC200_SYS_CONTROL 0 failed! \n");
++        return ret;
++    }
++	atomic_set(&ac200_en, 0);
++
++    ret = regmap_write(ac200->regmap, AC200_SYS_CONTROL, 1);
++    if (ret)
++    {
++        dev_err(dev, "AC200_SYS_CONTROL 1 failed! \n");
++        return ret;
++    }
++	atomic_set(&ac200_en, 1);
++
++    ret = devm_mfd_add_devices(dev, PLATFORM_DEVID_NONE, ac200_cells,
++                               ARRAY_SIZE(ac200_cells), NULL, 0, NULL);
++    if (ret)
++    {
++        dev_err(dev, "failed to add MFD devices: %d\n", ret);
++        return ret;
++    }
++    else
++    {
++        dev_err(dev, "add MFD devices success! \n");
++    }
++
++    return 0;
++}
++
++static void ac200_i2c_remove(struct i2c_client *i2c)
++{
++	struct ac200_dev *ac200 = i2c_get_clientdata(i2c);
++
++	regmap_write(ac200->regmap, AC200_SYS_CONTROL, 0);
++
++	mfd_remove_devices(&i2c->dev);
++}static void ac200_i2c_shutdown(struct i2c_client *i2c)
++{
++    struct ac200_dev *ac200 = i2c_get_clientdata(i2c);
++
++    regmap_write(ac200->regmap, AC200_SYS_CONTROL, 0);
++}
++
++static int ac200_i2c_suspend(struct device *dev)
++{
++	struct ac200_dev *ac200 = dev_get_drvdata(dev);
++
++	if (!IS_ERR_OR_NULL(ac200->clk))
++		clk_disable_unprepare(ac200->clk);
++
++	atomic_set(&ac200_en, 0);
++	return 0;
++}
++
++static int ac200_i2c_resume(struct device *dev)
++{
++	struct ac200_dev *ac200 = dev_get_drvdata(dev);
++
++	if (!IS_ERR_OR_NULL(ac200->clk))
++		clk_prepare_enable(ac200->clk);
++
++	atomic_set(&ac200_en, 0);
++	msleep(40);
++    regmap_write(ac200->regmap, AC200_SYS_CONTROL, 1);
++	atomic_set(&ac200_en, 1);
++	return 0;
++}
++
++static const struct dev_pm_ops ac200_core_pm_ops = {
++	.suspend_late = ac200_i2c_suspend,
++	.resume_early = ac200_i2c_resume,
++};
++
++static const struct i2c_device_id ac200_ids[] = {
++	{ "ac200", },
++	{ /* sentinel */ }
++};
++MODULE_DEVICE_TABLE(i2c, ac200_ids);
++
++static const struct of_device_id ac200_of_match[] = {
++	{ .compatible = "x-powers,ac200" },
++	{ /* sentinel */ }
++};
++MODULE_DEVICE_TABLE(of, ac200_of_match);
++
++static struct i2c_driver ac200_i2c_driver = {
++	.driver = {
++		.name	= "ac200",
++		.of_match_table	= of_match_ptr(ac200_of_match),
++        .pm = &ac200_core_pm_ops,
++	},
++	.probe	= ac200_i2c_probe,
++	.remove = ac200_i2c_remove,
++    .shutdown = ac200_i2c_shutdown,
++	.id_table = ac200_ids,
++};
++module_i2c_driver(ac200_i2c_driver);
++
++MODULE_DESCRIPTION("MFD core driver for AC200");
++MODULE_AUTHOR("Jernej Skrabec <jernej.skrabec@siol.net>");
++MODULE_LICENSE("GPL v2");
+diff --git a/drivers/pwm/Kconfig b/drivers/pwm/Kconfig
+index 60d13a949..0064c16f7 100644
+--- a/drivers/pwm/Kconfig
++++ b/drivers/pwm/Kconfig
+@@ -582,6 +582,15 @@ config PWM_SUN4I
+ 	  To compile this driver as a module, choose M here: the module
+ 	  will be called pwm-sun4i.
+ 
++config PWM_SUNXI_ENHANCE
++	tristate "Sunxi Enhance PWM support"
++	depends on PWM && ARCH_SUNXI
++	help
++	Enhance PWM framework driver for sunxi.
++
++	To compile this driver as a module, choose M here: the module
++	will be called pwm-sunxi.
++
+ config PWM_SUNPLUS
+ 	tristate "Sunplus PWM support"
+ 	depends on ARCH_SUNPLUS || COMPILE_TEST
+diff --git a/drivers/pwm/Makefile b/drivers/pwm/Makefile
+index 7bf1a29f0..f78f50652 100644
+--- a/drivers/pwm/Makefile
++++ b/drivers/pwm/Makefile
+@@ -54,6 +54,7 @@ obj-$(CONFIG_PWM_STM32)		+= pwm-stm32.o
+ obj-$(CONFIG_PWM_STM32_LP)	+= pwm-stm32-lp.o
+ obj-$(CONFIG_PWM_STMPE)		+= pwm-stmpe.o
+ obj-$(CONFIG_PWM_SUN4I)		+= pwm-sun4i.o
++obj-$(CONFIG_PWM_SUNXI_ENHANCE)		+= pwm-sunxi-enhance.o
+ obj-$(CONFIG_PWM_SUNPLUS)	+= pwm-sunplus.o
+ obj-$(CONFIG_PWM_TEGRA)		+= pwm-tegra.o
+ obj-$(CONFIG_PWM_TIECAP)	+= pwm-tiecap.o
+diff --git a/drivers/pwm/pwm-sunxi-enhance.c b/drivers/pwm/pwm-sunxi-enhance.c
+new file mode 100644
+index 000000000..68e22077c
+--- /dev/null
++++ b/drivers/pwm/pwm-sunxi-enhance.c
+@@ -0,0 +1,1194 @@
++/*
++ * Allwinnertech pulse-width-modulation controller driver
++ *
++ * Copyright (C) 2015 AllWinner
++ *
++ *
++ * This file is licensed under the terms of the GNU General Public
++ * License version 2. This program is licensed "as is" without any
++ * warranty of any kind, whether express or implied.
++ */
++#include <linux/types.h>
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/cdev.h>
++#include <linux/pwm.h>
++#include <linux/platform_device.h>
++#include <linux/slab.h>
++#include <linux/err.h>
++#include <linux/fs.h>
++#include <linux/device.h>
++#include <linux/gpio.h>
++#include <linux/pinctrl/pinconf.h>
++#include <linux/pinctrl/consumer.h>
++#include <linux/of_irq.h>
++#include <linux/of_address.h>
++#include <linux/of_iommu.h>
++#include <linux/of_device.h>
++#include <linux/of_platform.h>
++#include <linux/printk.h>
++#include <linux/io.h>
++#include <linux/clk.h>
++#include <linux/reset.h>
++#include "pwm-sunxi-enhance.h"
++
++#define PWM_NUM_MAX 4
++#define PWM_BIND_NUM 2
++#define PWM_PIN_STATE_ACTIVE "default"
++//#define PWM_PIN_STATE_SLEEP "sleep"
++
++#define SETMASK(width, shift) ((width ? ((-1U) >> (32 - width)) : 0) << (shift))
++#define CLRMASK(width, shift) (~(SETMASK(width, shift)))
++#define GET_BITS(shift, width, reg) \
++    (((reg)&SETMASK(width, shift)) >> (shift))
++#define SET_BITS(shift, width, reg, val) \
++    (((reg)&CLRMASK(width, shift)) | (val << (shift)))
++
++static int pwm_debug = 0;
++module_param(pwm_debug, int, 0644);
++MODULE_PARM_DESC(pwm_debug, "enable pwm debug");
++
++#define pwm_debug(fmt, ...) \
++    if (pwm_debug)          \
++    printk(KERN_WARNING pr_fmt(fmt), ##__VA_ARGS__)
++
++struct sunxi_pwm_config
++{
++    unsigned int dead_time;
++    unsigned int bind_pwm;
++
++    unsigned int clk_bypass_output;
++};
++
++struct sunxi_pwm_chip
++{
++    struct pwm_chip chip;
++    void __iomem *base;
++    struct sunxi_pwm_config *config;
++    struct clk *bus_clk;
++    struct clk *clk;
++    struct reset_control *pwm_rst_clk;
++};
++
++static inline struct sunxi_pwm_chip *to_sunxi_pwm_chip(struct pwm_chip *chip)
++{
++    return container_of(chip, struct sunxi_pwm_chip, chip);
++}
++
++static inline u32 sunxi_pwm_readl(struct pwm_chip *chip, u32 offset)
++{
++    struct sunxi_pwm_chip *pc = to_sunxi_pwm_chip(chip);
++    u32 value = 0;
++
++    value = readl(pc->base + offset);
++
++    return value;
++}
++
++static inline u32 sunxi_pwm_writel(struct pwm_chip *chip, u32 offset, u32 value)
++{
++    struct sunxi_pwm_chip *pc = to_sunxi_pwm_chip(chip);
++
++    writel(value, pc->base + offset);
++
++    return 0;
++}
++
++static int sunxi_pwm_pin_set_state(struct device *dev, char *name)
++{
++    struct pinctrl *pctl;
++    struct pinctrl_state *state;
++    int ret = -1;
++
++    pctl = devm_pinctrl_get(dev);
++    if (IS_ERR(pctl))
++    {
++        dev_err(dev, "pinctrl_get failed!\n");
++        ret = PTR_ERR(pctl);
++        goto exit;
++    }
++
++    state = pinctrl_lookup_state(pctl, name);
++    if (IS_ERR(state))
++    {
++        dev_err(dev, "pinctrl_lookup_state(%s) failed!\n", name);
++        ret = PTR_ERR(state);
++        goto exit;
++    }
++
++    ret = pinctrl_select_state(pctl, state);
++    if (ret < 0)
++    {
++        dev_err(dev, "pinctrl_select_state(%s) failed!\n", name);
++        goto exit;
++    }
++    ret = 0;
++
++exit:
++    return ret;
++}
++
++static int sunxi_pwm_get_config(struct platform_device *pdev, struct sunxi_pwm_config *config)
++{
++    struct device_node *np = pdev->dev.of_node;
++    int ret = 0;
++
++    /* read register config */
++    ret = of_property_read_u32(np, "bind_pwm", &config->bind_pwm);
++    if (ret < 0)
++    {
++        /*if there is no bind pwm,set 255, dual pwm invalid!*/
++        config->bind_pwm = 255;
++        ret = 0;
++    }
++
++    ret = of_property_read_u32(np, "dead_time", &config->dead_time);
++    if (ret < 0)
++    {
++        /*if there is  bind pwm, but not set dead time,set bind pwm 255,dual pwm invalid!*/
++        config->bind_pwm = 255;
++        ret = 0;
++    }
++
++    ret = of_property_read_u32(np, "clk_bypass_output", &config->clk_bypass_output);
++    if (ret < 0)
++    {
++        /*if use pwm as the internal clock source!*/
++        config->clk_bypass_output = 0;
++        ret = 0;
++    }
++
++    of_node_put(np);
++
++    return ret;
++}
++
++static int sunxi_pwm_set_polarity_single(struct pwm_chip *chip, struct pwm_device *pwm, enum pwm_polarity polarity)
++{
++    u32 temp;
++    unsigned int reg_offset, reg_shift, reg_width;
++    u32 sel = 0;
++
++    sel = pwm->pwm - chip->base;
++    reg_offset = PWM_PCR_BASE + sel * 0x20;
++    reg_shift = PWM_ACT_STA_SHIFT;
++    reg_width = PWM_ACT_STA_WIDTH;
++    temp = sunxi_pwm_readl(chip, reg_offset);
++    if (polarity == PWM_POLARITY_NORMAL)
++        temp = SET_BITS(reg_shift, 1, temp, 1);
++    else
++        temp = SET_BITS(reg_shift, 1, temp, 0);
++
++    sunxi_pwm_writel(chip, reg_offset, temp);
++
++    return 0;
++}
++
++static int sunxi_pwm_set_polarity_dual(struct pwm_chip *chip, struct pwm_device *pwm, enum pwm_polarity polarity, int bind_num)
++{
++    u32 temp[2];
++    unsigned int reg_offset[2], reg_shift[2], reg_width[2];
++    u32 sel[2] = {0};
++
++    sel[0] = pwm->pwm - chip->base;
++    sel[1] = bind_num - chip->base;
++    /* config current pwm*/
++    reg_offset[0] = PWM_PCR_BASE + sel[0] * 0x20;
++    reg_shift[0] = PWM_ACT_STA_SHIFT;
++    reg_width[0] = PWM_ACT_STA_WIDTH;
++    temp[0] = sunxi_pwm_readl(chip, reg_offset[0]);
++    if (polarity == PWM_POLARITY_NORMAL)
++        temp[0] = SET_BITS(reg_shift[0], 1, temp[0], 1);
++    else
++        temp[0] = SET_BITS(reg_shift[0], 1, temp[0], 0);
++
++    /* config bind pwm*/
++    reg_offset[1] = PWM_PCR_BASE + sel[1] * 0x20;
++    reg_shift[1] = PWM_ACT_STA_SHIFT;
++    reg_width[1] = PWM_ACT_STA_WIDTH;
++    temp[1] = sunxi_pwm_readl(chip, reg_offset[1]);
++
++    /*bind pwm's polarity is reverse compare with the  current pwm*/
++    if (polarity == PWM_POLARITY_NORMAL)
++        temp[1] = SET_BITS(reg_shift[0], 1, temp[1], 0);
++    else
++        temp[1] = SET_BITS(reg_shift[0], 1, temp[1], 1);
++
++    /*config register at the same time*/
++    sunxi_pwm_writel(chip, reg_offset[0], temp[0]);
++    sunxi_pwm_writel(chip, reg_offset[1], temp[1]);
++
++    return 0;
++}
++
++static int sunxi_pwm_set_polarity(struct pwm_chip *chip, struct pwm_device *pwm, enum pwm_polarity polarity)
++{
++    int bind_num;
++    struct sunxi_pwm_chip *pc = to_sunxi_pwm_chip(chip);
++
++    bind_num = pc->config[pwm->pwm - chip->base].bind_pwm;
++    if (bind_num == 255)
++        sunxi_pwm_set_polarity_single(chip, pwm, polarity);
++    else
++        sunxi_pwm_set_polarity_dual(chip, pwm, polarity, bind_num);
++
++    return 0;
++}
++
++static u32 get_pccr_reg_offset(u32 sel, u32 *reg_offset)
++{
++    switch (sel)
++    {
++    case 0:
++    case 1:
++        *reg_offset = PWM_PCCR01;
++        break;
++    case 2:
++    case 3:
++        *reg_offset = PWM_PCCR23;
++        break;
++    case 4:
++    case 5:
++        *reg_offset = PWM_PCCR45;
++        break;
++    case 6:
++    case 7:
++        *reg_offset = PWM_PCCR67;
++        break;
++    case 8:
++        *reg_offset = PWM_PCCR8;
++        break;
++    default:
++        pr_err("%s:Not supported!\n", __func__);
++        break;
++    }
++    return 0;
++}
++
++static u32 get_pdzcr_reg_offset(u32 sel, u32 *reg_offset)
++{
++    switch (sel)
++    {
++    case 0:
++    case 1:
++        *reg_offset = PWM_PDZCR01;
++        break;
++    case 2:
++    case 3:
++        *reg_offset = PWM_PDZCR23;
++        break;
++    case 4:
++    case 5:
++        *reg_offset = PWM_PDZCR45;
++        break;
++    case 6:
++    case 7:
++        *reg_offset = PWM_PDZCR67;
++        break;
++    default:
++        pr_err("%s:Not supported!\n", __func__);
++        break;
++    }
++    return 0;
++}
++
++#define PRESCALE_MAX 256
++
++static int sunxi_pwm_config_single(struct pwm_chip *chip, struct pwm_device *pwm,
++                                   int duty_ns, int period_ns)
++{
++    unsigned int temp;
++    unsigned long long c = 0;
++    unsigned long entire_cycles = 256, active_cycles = 192;
++    struct sunxi_pwm_chip *pc = to_sunxi_pwm_chip(chip);
++    unsigned int reg_offset, reg_shift, reg_width;
++    unsigned int reg_bypass_shift;
++    unsigned int reg_clk_src_shift, reg_clk_src_width;
++    unsigned int reg_div_m_shift, reg_div_m_width;
++    unsigned int pre_scal_id = 0, div_m = 0, prescale = 0;
++    u32 sel = 0;
++    u32 pre_scal[][2] = {
++
++        /* reg_value  clk_pre_div */
++        {0, 1},
++        {1, 2},
++        {2, 4},
++        {3, 8},
++        {4, 16},
++        {5, 32},
++        {6, 64},
++        {7, 128},
++        {8, 256},
++    };
++
++    sel = pwm->pwm - chip->base;
++
++    get_pccr_reg_offset(sel, &reg_offset);
++    if ((sel % 2) == 0)
++        reg_bypass_shift = 0x5;
++    else
++        reg_bypass_shift = 0x6;
++    /*src clk reg*/
++    reg_clk_src_shift = PWM_CLK_SRC_SHIFT;
++    reg_clk_src_width = PWM_CLK_SRC_WIDTH;
++
++    if (period_ns > 0 && period_ns <= 10)
++    {
++        /* if freq lt 100M, then direct output 100M clock,set by pass. */
++        c = 100000000;
++        /*bypass reg*/
++        temp = sunxi_pwm_readl(chip, reg_offset);
++        temp = SET_BITS(reg_bypass_shift, 1, temp, 1);
++        sunxi_pwm_writel(chip, reg_offset, temp);
++
++        /*clk_src_reg*/
++        temp = sunxi_pwm_readl(chip, reg_offset);
++        temp = SET_BITS(reg_clk_src_shift, reg_clk_src_width, temp, 1);
++        sunxi_pwm_writel(chip, reg_offset, temp);
++
++        return 0;
++    }
++    else if (period_ns > 10 && period_ns <= 334)
++    {
++        /* if freq between 3M~100M, then select 100M as clock */
++        c = 100000000;
++        /*set clk bypass_output reg to 1 when pwm is used as the internal clock source.*/
++        if (pc->config[pwm->pwm - chip->base].clk_bypass_output == 1) {
++            temp = sunxi_pwm_readl(chip, reg_offset);
++            temp = SET_BITS(reg_bypass_shift, 1, temp, 1);
++            sunxi_pwm_writel(chip, reg_offset, temp);
++        }
++        /*clk_src_reg*/
++        temp = sunxi_pwm_readl(chip, reg_offset);
++        temp = SET_BITS(reg_clk_src_shift, reg_clk_src_width, temp, 1);
++        sunxi_pwm_writel(chip, reg_offset, temp);
++    }
++    else if (period_ns > 334)
++    {
++        /* if freq < 3M, then select 24M clock */
++        c = 24000000;
++        /*set clk bypass_output reg to 1 when pwm is used as the internal clock source.*/
++        if (pc->config[pwm->pwm - chip->base].clk_bypass_output == 1) {
++            temp = sunxi_pwm_readl(chip, reg_offset);
++            temp = SET_BITS(reg_bypass_shift, 1, temp, 1);
++            sunxi_pwm_writel(chip, reg_offset, temp);
++        }
++        /*clk_src_reg*/
++        temp = sunxi_pwm_readl(chip, reg_offset);
++        temp = SET_BITS(reg_clk_src_shift, reg_clk_src_width, temp, 0);
++        sunxi_pwm_writel(chip, reg_offset, temp);
++    }
++    pwm_debug("duty_ns=%d period_ns=%d c =%llu.\n", duty_ns, period_ns, c);
++
++    c = c * period_ns;
++    do_div(c, 1000000000);
++    entire_cycles = (unsigned long)c;
++
++    for (pre_scal_id = 0; pre_scal_id < 9; pre_scal_id++)
++    {
++        if (entire_cycles <= 65536)
++            break;
++        for (prescale = 0; prescale < PRESCALE_MAX + 1; prescale++)
++        {
++            entire_cycles = ((unsigned long)c / pre_scal[pre_scal_id][1]) / (prescale + 1);
++            if (entire_cycles <= 65536)
++            {
++                div_m = pre_scal[pre_scal_id][0];
++                break;
++            }
++        }
++    }
++
++    c = (unsigned long long)entire_cycles * duty_ns;
++    do_div(c, period_ns);
++    active_cycles = c;
++    if (entire_cycles == 0)
++        entire_cycles++;
++
++    /* config  clk div_m*/
++    reg_div_m_shift = PWM_DIV_M_SHIFT;
++    reg_div_m_width = PWM_DIV_M_WIDTH;
++    temp = sunxi_pwm_readl(chip, reg_offset);
++    temp = SET_BITS(reg_div_m_shift, reg_div_m_width, temp, div_m);
++    sunxi_pwm_writel(chip, reg_offset, temp);
++
++    /* config prescal */
++    reg_offset = PWM_PCR_BASE + 0x20 * sel;
++    reg_shift = PWM_PRESCAL_SHIFT;
++    reg_width = PWM_PRESCAL_WIDTH;
++    temp = sunxi_pwm_readl(chip, reg_offset);
++    temp = SET_BITS(reg_shift, reg_width, temp, prescale);
++    sunxi_pwm_writel(chip, reg_offset, temp);
++
++    /* config active cycles */
++    reg_offset = PWM_PPR_BASE + 0x20 * sel;
++    reg_shift = PWM_ACT_CYCLES_SHIFT;
++    reg_width = PWM_ACT_CYCLES_WIDTH;
++    temp = sunxi_pwm_readl(chip, reg_offset);
++    temp = SET_BITS(reg_shift, reg_width, temp, active_cycles);
++    sunxi_pwm_writel(chip, reg_offset, temp);
++
++    /* config period cycles */
++    reg_offset = PWM_PPR_BASE + 0x20 * sel;
++    reg_shift = PWM_PERIOD_CYCLES_SHIFT;
++    reg_width = PWM_PERIOD_CYCLES_WIDTH;
++    temp = sunxi_pwm_readl(chip, reg_offset);
++    temp = SET_BITS(reg_shift, reg_width, temp, (entire_cycles - 1));
++
++    sunxi_pwm_writel(chip, reg_offset, temp);
++
++    pwm_debug("active_cycles=%lu entire_cycles=%lu prescale=%u div_m=%u\n",
++              active_cycles, entire_cycles, prescale, div_m);
++    return 0;
++}
++
++static int sunxi_pwm_config_dual(struct pwm_chip *chip, struct pwm_device *pwm,
++                                 int duty_ns, int period_ns, int bind_num)
++{
++    u32 value[2] = {0};
++    unsigned int temp;
++    unsigned long long c = 0, clk = 0, clk_temp = 0;
++    unsigned long entire_cycles = 256, active_cycles = 192;
++    unsigned int reg_offset[2], reg_shift[2], reg_width[2];
++    unsigned int reg_bypass_shift;
++    unsigned int reg_dz_en_offset[2], reg_dz_en_shift[2], reg_dz_en_width[2];
++    unsigned int pre_scal_id = 0, div_m = 0, prescale = 0;
++    int src_clk_sel = 0;
++    int i = 0;
++    unsigned int dead_time = 0, duty = 0;
++    u32 pre_scal[][2] = {
++
++        /* reg_value  clk_pre_div */
++        {0, 1},
++        {1, 2},
++        {2, 4},
++        {3, 8},
++        {4, 16},
++        {5, 32},
++        {6, 64},
++        {7, 128},
++        {8, 256},
++    };
++    unsigned int pwm_index[2] = {0};
++    struct sunxi_pwm_chip *pc = to_sunxi_pwm_chip(chip);
++
++    pwm_index[0] = pwm->pwm - chip->base;
++    pwm_index[1] = bind_num - chip->base;
++
++    /* if duty time < dead time,it is wrong. */
++    dead_time = pc->config[pwm_index[0]].dead_time;
++    duty = (unsigned int)duty_ns;
++    /* judge if the pwm eanble dead zone */
++    get_pdzcr_reg_offset(pwm_index[0], &reg_dz_en_offset[0]);
++    reg_dz_en_shift[0] = PWM_DZ_EN_SHIFT;
++    reg_dz_en_width[0] = PWM_DZ_EN_WIDTH;
++
++    value[0] = sunxi_pwm_readl(chip, reg_dz_en_offset[0]);
++    value[0] = SET_BITS(reg_dz_en_shift[0], reg_dz_en_width[0], value[0], 1);
++    sunxi_pwm_writel(chip, reg_dz_en_offset[0], value[0]);
++    temp = sunxi_pwm_readl(chip, reg_dz_en_offset[0]);
++    temp &= (1u << reg_dz_en_shift[0]);
++    if (duty < dead_time || temp == 0)
++    {
++        pr_err("[PWM]duty time or dead zone error.\n");
++        return -EINVAL;
++    }
++
++    for (i = 0; i < PWM_BIND_NUM; i++)
++    {
++        if ((i % 2) == 0)
++            reg_bypass_shift = 0x5;
++        else
++            reg_bypass_shift = 0x6;
++        get_pccr_reg_offset(pwm_index[i], &reg_offset[i]);
++        reg_shift[i] = reg_bypass_shift;
++        reg_width[i] = PWM_BYPASS_WIDTH;
++    }
++
++    if (period_ns > 0 && period_ns <= 10)
++    {
++        /* if freq lt 100M, then direct output 100M clock,set by pass */
++        clk = 100000000;
++        src_clk_sel = 1;
++
++        /* config the two pwm bypass */
++        for (i = 0; i < PWM_BIND_NUM; i++)
++        {
++            temp = sunxi_pwm_readl(chip, reg_offset[i]);
++            temp = SET_BITS(reg_shift[i], reg_width[i], temp, 1);
++            sunxi_pwm_writel(chip, reg_offset[i], temp);
++
++            reg_shift[i] = PWM_CLK_SRC_SHIFT;
++            reg_width[i] = PWM_CLK_SRC_WIDTH;
++            temp = sunxi_pwm_readl(chip, reg_offset[i]);
++            temp = SET_BITS(reg_shift[i], reg_width[i], temp, 1);
++            sunxi_pwm_writel(chip, reg_offset[i], temp);
++        }
++
++        return 0;
++    }
++    else if (period_ns > 10 && period_ns <= 334)
++    {
++        clk = 100000000;
++        src_clk_sel = 1;
++    }
++    else if (period_ns > 334)
++    {
++        /* if freq < 3M, then select 24M clock */
++        clk = 24000000;
++        src_clk_sel = 0;
++    }
++
++    for (i = 0; i < PWM_BIND_NUM; i++)
++    {
++        reg_shift[i] = PWM_CLK_SRC_SHIFT;
++        reg_width[i] = PWM_CLK_SRC_WIDTH;
++
++        temp = sunxi_pwm_readl(chip, reg_offset[i]);
++        temp = SET_BITS(reg_shift[i], reg_width[i], temp, src_clk_sel);
++        sunxi_pwm_writel(chip, reg_offset[i], temp);
++    }
++
++    c = clk;
++    c *= period_ns;
++    do_div(c, 1000000000);
++    entire_cycles = (unsigned long)c;
++
++    /* get div_m and prescale,which satisfy: deat_val <= 256, entire <= 65536 */
++    for (pre_scal_id = 0; pre_scal_id < 9; pre_scal_id++)
++    {
++        for (prescale = 0; prescale < PRESCALE_MAX + 1; prescale++)
++        {
++            entire_cycles = ((unsigned long)c / pre_scal[pre_scal_id][1]) / (prescale + 1);
++            clk_temp = clk;
++            do_div(clk_temp, pre_scal[pre_scal_id][1] * (prescale + 1));
++            clk_temp *= dead_time;
++            do_div(clk_temp, 1000000000);
++            if (entire_cycles <= 65536 && clk_temp <= 256)
++            {
++                div_m = pre_scal[pre_scal_id][0];
++                break;
++            }
++        }
++        if (entire_cycles <= 65536 && clk_temp <= 256)
++            break;
++        else
++        {
++            pr_err("%s:config dual err.entire_cycles=%lu, dead_zone_val=%llu",
++                   __func__, entire_cycles, clk_temp);
++            return -EINVAL;
++        }
++    }
++
++    c = (unsigned long long)entire_cycles * duty_ns;
++    do_div(c, period_ns);
++    active_cycles = c;
++    if (entire_cycles == 0)
++        entire_cycles++;
++
++    /* config  clk div_m*/
++    for (i = 0; i < PWM_BIND_NUM; i++)
++    {
++        reg_shift[i] = PWM_DIV_M_SHIFT;
++        reg_width[i] = PWM_DIV_M_SHIFT;
++        temp = sunxi_pwm_readl(chip, reg_offset[i]);
++        temp = SET_BITS(reg_shift[i], reg_width[i], temp, div_m);
++        sunxi_pwm_writel(chip, reg_offset[i], temp);
++    }
++
++    /* config prescal */
++    for (i = 0; i < PWM_BIND_NUM; i++)
++    {
++        reg_offset[i] = PWM_PCR_BASE + 0x20 * pwm_index[i];
++        reg_shift[i] = PWM_PRESCAL_SHIFT;
++        reg_width[i] = PWM_PRESCAL_WIDTH;
++        temp = sunxi_pwm_readl(chip, reg_offset[i]);
++        temp = SET_BITS(reg_shift[i], reg_width[i], temp, prescale);
++        sunxi_pwm_writel(chip, reg_offset[i], temp);
++    }
++
++    /* config active cycles */
++    for (i = 0; i < PWM_BIND_NUM; i++)
++    {
++        reg_offset[i] = PWM_PPR_BASE + 0x20 * pwm_index[i];
++        reg_shift[i] = PWM_ACT_CYCLES_SHIFT;
++        reg_width[i] = PWM_ACT_CYCLES_WIDTH;
++        temp = sunxi_pwm_readl(chip, reg_offset[i]);
++        temp = SET_BITS(reg_shift[i], reg_width[i], temp, active_cycles);
++        sunxi_pwm_writel(chip, reg_offset[i], temp);
++    }
++
++    /* config period cycles */
++    for (i = 0; i < PWM_BIND_NUM; i++)
++    {
++        reg_offset[i] = PWM_PPR_BASE + 0x20 * pwm_index[i];
++        reg_shift[i] = PWM_PERIOD_CYCLES_SHIFT;
++        reg_width[i] = PWM_PERIOD_CYCLES_WIDTH;
++        temp = sunxi_pwm_readl(chip, reg_offset[i]);
++        temp = SET_BITS(reg_shift[i], reg_width[i], temp, (entire_cycles - 1));
++        sunxi_pwm_writel(chip, reg_offset[i], temp);
++    }
++
++    pwm_debug("active_cycles=%lu entire_cycles=%lu prescale=%u div_m=%u\n",
++              active_cycles, entire_cycles, prescale, div_m);
++
++    /* config dead zone, one config for two pwm */
++    reg_offset[0] = reg_dz_en_offset[0];
++    reg_shift[0] = PWM_PDZINTV_SHIFT;
++    reg_width[0] = PWM_PDZINTV_WIDTH;
++    temp = sunxi_pwm_readl(chip, reg_offset[0]);
++    temp = SET_BITS(reg_shift[0], reg_width[0], temp, (unsigned int)clk_temp);
++    sunxi_pwm_writel(chip, reg_offset[0], temp);
++
++    return 0;
++}
++
++static int sunxi_pwm_config(struct pwm_chip *chip, struct pwm_device *pwm,
++                            int duty_ns, int period_ns)
++{
++    int bind_num;
++
++    struct sunxi_pwm_chip *pc = to_sunxi_pwm_chip(chip);
++
++    bind_num = pc->config[pwm->pwm - chip->base].bind_pwm;
++    if (bind_num == 255) {
++        sunxi_pwm_config_single(chip, pwm, duty_ns, period_ns);
++    }
++    else {
++        sunxi_pwm_config_dual(chip, pwm, duty_ns, period_ns, bind_num);
++    }
++
++    return 0;
++}
++
++static int sunxi_pwm_enable_single(struct pwm_chip *chip, struct pwm_device *pwm)
++{
++    unsigned int value = 0, index = 0;
++    unsigned int reg_offset, reg_shift;
++    struct device_node *sub_np;
++    struct platform_device *pwm_pdevice;
++    int ret;
++
++    index = pwm->pwm - chip->base;
++    sub_np = of_parse_phandle(chip->dev->of_node, "sunxi-pwms", index);
++    if (IS_ERR_OR_NULL(sub_np))
++    {
++        pr_err("%s: can't parse \"sunxi-pwms\" property\n", __func__);
++        return -ENODEV;
++    }
++    pwm_pdevice = of_find_device_by_node(sub_np);
++    if (IS_ERR_OR_NULL(pwm_pdevice))
++    {
++        pr_err("%s: can't parse pwm device\n", __func__);
++        return -ENODEV;
++    }
++    ret = sunxi_pwm_pin_set_state(&pwm_pdevice->dev, PWM_PIN_STATE_ACTIVE);
++    if (ret != 0)
++        return ret;
++
++    /* enable clk for pwm controller */
++    get_pccr_reg_offset(index, &reg_offset);
++    reg_shift = PWM_CLK_GATING_SHIFT;
++    value = sunxi_pwm_readl(chip, reg_offset);
++    value = SET_BITS(reg_shift, 1, value, 1);
++    sunxi_pwm_writel(chip, reg_offset, value);
++
++    /* enable pwm controller */
++    reg_offset = PWM_PER;
++    reg_shift = index;
++    value = sunxi_pwm_readl(chip, reg_offset);
++    value = SET_BITS(reg_shift, 1, value, 1);
++    sunxi_pwm_writel(chip, reg_offset, value);
++
++    return 0;
++}
++
++static int sunxi_pwm_enable_dual(struct pwm_chip *chip, struct pwm_device *pwm, int bind_num)
++{
++    u32 value[2] = {0};
++    unsigned int reg_offset[2], reg_shift[2], reg_width[2];
++    struct device_node *sub_np[2];
++    struct platform_device *pwm_pdevice[2];
++    int i = 0, ret = 0;
++    unsigned int pwm_index[2] = {0};
++
++    pwm_index[0] = pwm->pwm - chip->base;
++    pwm_index[1] = bind_num - chip->base;
++
++    /*set current pwm pin state*/
++    sub_np[0] = of_parse_phandle(chip->dev->of_node, "sunxi-pwms", pwm_index[0]);
++    if (IS_ERR_OR_NULL(sub_np[0]))
++    {
++        pr_err("%s: can't parse \"sunxi-pwms\" property\n", __func__);
++        return -ENODEV;
++    }
++    pwm_pdevice[0] = of_find_device_by_node(sub_np[0]);
++    if (IS_ERR_OR_NULL(pwm_pdevice[0]))
++    {
++        pr_err("%s: can't parse pwm device\n", __func__);
++        return -ENODEV;
++    }
++
++    /*set bind pwm pin state*/
++    sub_np[1] = of_parse_phandle(chip->dev->of_node, "sunxi-pwms", pwm_index[1]);
++    if (IS_ERR_OR_NULL(sub_np[1]))
++    {
++        pr_err("%s: can't parse \"sunxi-pwms\" property\n", __func__);
++        return -ENODEV;
++    }
++    pwm_pdevice[1] = of_find_device_by_node(sub_np[1]);
++    if (IS_ERR_OR_NULL(pwm_pdevice[1]))
++    {
++        pr_err("%s: can't parse pwm device\n", __func__);
++        return -ENODEV;
++    }
++
++    ret = sunxi_pwm_pin_set_state(&pwm_pdevice[0]->dev, PWM_PIN_STATE_ACTIVE);
++    if (ret != 0)
++        return ret;
++    ret = sunxi_pwm_pin_set_state(&pwm_pdevice[1]->dev, PWM_PIN_STATE_ACTIVE);
++    if (ret != 0)
++        return ret;
++
++    /* enable clk for pwm controller */
++    for (i = 0; i < PWM_BIND_NUM; i++)
++    {
++        get_pccr_reg_offset(pwm_index[i], &reg_offset[i]);
++        reg_shift[i] = PWM_CLK_GATING_SHIFT;
++        reg_width[i] = PWM_CLK_GATING_WIDTH;
++        value[i] = sunxi_pwm_readl(chip, reg_offset[i]);
++        value[i] = SET_BITS(reg_shift[i], reg_width[i], value[i], 1);
++        sunxi_pwm_writel(chip, reg_offset[i], value[i]);
++    }
++
++    /* enable pwm controller */
++    for (i = 0; i < PWM_BIND_NUM; i++)
++    {
++        reg_offset[i] = PWM_PER;
++        reg_shift[i] = pwm_index[i];
++        reg_width[i] = 0x1;
++        value[i] = sunxi_pwm_readl(chip, reg_offset[i]);
++        value[i] = SET_BITS(reg_shift[i], reg_width[i], value[i], 1);
++        sunxi_pwm_writel(chip, reg_offset[i], value[i]);
++    }
++
++    return 0;
++}
++
++static int sunxi_pwm_enable(struct pwm_chip *chip, struct pwm_device *pwm)
++{
++    int bind_num;
++    int ret = 0;
++    struct sunxi_pwm_chip *pc = to_sunxi_pwm_chip(chip);
++
++    bind_num = pc->config[pwm->pwm - chip->base].bind_pwm;
++    if (bind_num == 255)
++        ret = sunxi_pwm_enable_single(chip, pwm);
++    else
++        ret = sunxi_pwm_enable_dual(chip, pwm, bind_num);
++
++    sunxi_pwm_set_polarity(chip, pwm, PWM_POLARITY_NORMAL);
++
++    return ret;
++}
++
++static void sunxi_pwm_disable_single(struct pwm_chip *chip, struct pwm_device *pwm)
++{
++    u32 value = 0, index = 0;
++    unsigned int reg_offset, reg_shift, reg_width;
++    struct device_node *sub_np;
++    struct platform_device *pwm_pdevice;
++
++    index = pwm->pwm - chip->base;
++    sub_np = of_parse_phandle(chip->dev->of_node, "sunxi-pwms", index);
++    if (IS_ERR_OR_NULL(sub_np))
++    {
++        pr_err("%s: can't parse \"sunxi-pwms\" property\n", __func__);
++        return;
++    }
++    pwm_pdevice = of_find_device_by_node(sub_np);
++    if (IS_ERR_OR_NULL(pwm_pdevice))
++    {
++        pr_err("%s: can't parse pwm device\n", __func__);
++        return;
++    }
++
++    /* disable pwm controller */
++    reg_offset = PWM_PER;
++    reg_shift = index;
++    reg_width = 0x1;
++    value = sunxi_pwm_readl(chip, reg_offset);
++    value = SET_BITS(reg_shift, reg_width, value, 0);
++    sunxi_pwm_writel(chip, reg_offset, value);
++
++    /*
++     * 0 , 1 --> 0
++     * 2 , 3 --> 2
++     * 4 , 5 --> 4
++     * 6 , 7 --> 6
++     */
++    reg_shift &= ~(1);
++
++    if (GET_BITS(reg_shift, 2, value) == 0)
++    {
++        /* disable clk for pwm controller. */
++        get_pccr_reg_offset(index, &reg_offset);
++        reg_shift = PWM_CLK_GATING_SHIFT;
++        reg_width = 0x1;
++        value = sunxi_pwm_readl(chip, reg_offset);
++        value = SET_BITS(reg_shift, reg_width, value, 0);
++        sunxi_pwm_writel(chip, reg_offset, value);
++    }
++
++    // sunxi_pwm_pin_set_state(&pwm_pdevice->dev, PWM_PIN_STATE_SLEEP);
++}
++
++static void sunxi_pwm_disable_dual(struct pwm_chip *chip, struct pwm_device *pwm, int bind_num)
++{
++    u32 value[2] = {0};
++    unsigned int reg_offset[2], reg_shift[2], reg_width[2];
++    struct device_node *sub_np[2];
++    struct platform_device *pwm_pdevice[2];
++    int i = 0;
++    unsigned int pwm_index[2] = {0};
++
++    pwm_index[0] = pwm->pwm - chip->base;
++    pwm_index[1] = bind_num - chip->base;
++
++    /* get current index pwm device */
++    sub_np[0] = of_parse_phandle(chip->dev->of_node, "pwms", pwm_index[0]);
++    if (IS_ERR_OR_NULL(sub_np[0]))
++    {
++        pr_err("%s: can't parse \"pwms\" property\n", __func__);
++        return;
++    }
++    pwm_pdevice[0] = of_find_device_by_node(sub_np[0]);
++    if (IS_ERR_OR_NULL(pwm_pdevice[0]))
++    {
++        pr_err("%s: can't parse pwm device\n", __func__);
++        return;
++    }
++    /* get bind pwm device */
++    sub_np[1] = of_parse_phandle(chip->dev->of_node, "pwms", pwm_index[1]);
++    if (IS_ERR_OR_NULL(sub_np[1]))
++    {
++        pr_err("%s: can't parse \"pwms\" property\n", __func__);
++        return;
++    }
++    pwm_pdevice[1] = of_find_device_by_node(sub_np[1]);
++    if (IS_ERR_OR_NULL(pwm_pdevice[1]))
++    {
++        pr_err("%s: can't parse pwm device\n", __func__);
++        return;
++    }
++
++    /* disable pwm controller */
++    for (i = 0; i < PWM_BIND_NUM; i++)
++    {
++        reg_offset[i] = PWM_PER;
++        reg_shift[i] = pwm_index[i];
++        reg_width[i] = 0x1;
++        value[i] = sunxi_pwm_readl(chip, reg_offset[i]);
++        value[i] = SET_BITS(reg_shift[i], reg_width[i], value[i], 0);
++        sunxi_pwm_writel(chip, reg_offset[i], value[i]);
++    }
++
++    /* disable pwm clk gating */
++    for (i = 0; i < PWM_BIND_NUM; i++)
++    {
++        get_pccr_reg_offset(pwm_index[i], &reg_offset[i]);
++        reg_shift[i] = PWM_CLK_GATING_SHIFT;
++        reg_width[i] = 0x1;
++        value[i] = sunxi_pwm_readl(chip, reg_offset[i]);
++        value[i] = SET_BITS(reg_shift[i], reg_width[i], value[i], 0);
++        sunxi_pwm_writel(chip, reg_offset[i], value[i]);
++    }
++
++    /* disable pwm dead zone,one for the two pwm */
++    get_pdzcr_reg_offset(pwm_index[0], &reg_offset[0]);
++    reg_shift[0] = PWM_DZ_EN_SHIFT;
++    reg_width[0] = PWM_DZ_EN_WIDTH;
++    value[0] = sunxi_pwm_readl(chip, reg_offset[0]);
++    value[0] = SET_BITS(reg_shift[0], reg_width[0], value[0], 0);
++    sunxi_pwm_writel(chip, reg_offset[0], value[0]);
++
++    /* config pin sleep */
++    // sunxi_pwm_pin_set_state(&pwm_pdevice[0]->dev, PWM_PIN_STATE_SLEEP);
++    // sunxi_pwm_pin_set_state(&pwm_pdevice[1]->dev, PWM_PIN_STATE_SLEEP);
++}
++
++static void sunxi_pwm_disable(struct pwm_chip *chip, struct pwm_device *pwm)
++{
++    int bind_num;
++    struct sunxi_pwm_chip *pc = to_sunxi_pwm_chip(chip);
++
++    bind_num = pc->config[pwm->pwm - chip->base].bind_pwm;
++    if (bind_num == 255)
++        sunxi_pwm_disable_single(chip, pwm);
++    else
++        sunxi_pwm_disable_dual(chip, pwm, bind_num);
++}
++
++static int sunxi_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
++			    const struct pwm_state *state)
++{
++	int err;
++	bool enabled = pwm->state.enabled;
++
++	if (state->polarity != pwm->state.polarity) {
++		/*
++		 * Changing the polarity of a running PWM is only allowed when
++		 * the PWM driver implements ->apply().
++		 */
++		if (enabled) {
++			sunxi_pwm_disable(chip, pwm);
++
++			enabled = false;
++		}
++
++		err = sunxi_pwm_set_polarity(chip, pwm, state->polarity);
++		if (err)
++			return err;
++	}
++
++
++	if (!state->enabled) {
++		if (enabled) {
++			sunxi_pwm_disable(chip, pwm);
++        }
++
++		return 0;
++	}
++
++	/*
++	 * We cannot skip calling ->config even if state->period ==
++	 * pwm->state.period && state->duty_cycle == pwm->state.duty_cycle
++	 * because we might have exited early in the last call to
++	 * pwm_apply_state because of !state->enabled and so the two values in
++	 * pwm->state might not be configured in hardware.
++	 */
++	err = sunxi_pwm_config(pwm->chip, pwm, state->duty_cycle, state->period);
++	if (err) {
++		return err;
++    }
++
++	if (!enabled)
++		err = sunxi_pwm_enable(chip, pwm);
++
++	return err;
++}
++
++static const struct pwm_ops sunxi_pwm_ops = {
++	.apply = sunxi_pwm_apply,
++	.owner = THIS_MODULE,
++};
++
++static int sunxi_pwm_probe(struct platform_device *pdev)
++{
++    int ret;
++    struct sunxi_pwm_chip *pwm;
++    struct device_node *np = pdev->dev.of_node;
++    int i;
++    struct platform_device *pwm_pdevice;
++    struct device_node *sub_np;
++
++    pwm = devm_kzalloc(&pdev->dev, sizeof(*pwm), GFP_KERNEL);
++    if (!pwm)
++    {
++        dev_err(&pdev->dev, "failed to allocate memory!\n");
++        return -ENOMEM;
++    }
++
++    /* io map pwm base */
++    pwm->base = (void __iomem *)of_iomap(pdev->dev.of_node, 0);
++    if (!pwm->base)
++    {
++        dev_err(&pdev->dev, "unable to map pwm registers\n");
++        ret = -EINVAL;
++        goto err_iomap;
++    }
++
++    /* read property pwm-number */
++    ret = of_property_read_u32(np, "pwm-number", &pwm->chip.npwm);
++    if (ret < 0)
++    {
++        dev_err(&pdev->dev, "failed to get pwm number: %d, force to one!\n", ret);
++        /* force to one pwm if read property fail */
++        pwm->chip.npwm = 1;
++    }
++
++    /* read property pwm-base */
++    ret = of_property_read_u32(np, "pwm-base", &pwm->chip.base);
++    if (ret < 0)
++    {
++        dev_err(&pdev->dev, "failed to get pwm-base: %d, force to -1 !\n", ret);
++        /* force to one pwm if read property fail */
++        pwm->chip.base = -1;
++    }
++    pwm->chip.dev = &pdev->dev;
++    pwm->chip.ops = &sunxi_pwm_ops;
++
++    /* add pwm chip to pwm-core */
++    ret = pwmchip_add(&pwm->chip);
++    if (ret < 0)
++    {
++        dev_err(&pdev->dev, "pwmchip_add() failed: %d\n", ret);
++        goto err_add;
++    }
++    platform_set_drvdata(pdev, pwm);
++
++    pwm->config = devm_kzalloc(&pdev->dev, sizeof(*pwm->config) * pwm->chip.npwm, GFP_KERNEL);
++    if (!pwm->config)
++    {
++        dev_err(&pdev->dev, "failed to allocate memory!\n");
++        goto err_alloc;
++    }
++
++    for (i = 0; i < pwm->chip.npwm; i++)
++    {
++        sub_np = of_parse_phandle(np, "sunxi-pwms", i);
++        if (IS_ERR_OR_NULL(sub_np))
++        {
++            pr_err("%s: can't parse \"sunxi-pwms\" property\n", __func__);
++            return -EINVAL;
++        }
++
++        pwm_pdevice = of_find_device_by_node(sub_np);
++        ret = sunxi_pwm_get_config(pwm_pdevice, &pwm->config[i]);
++        if (ret)
++        {
++            pr_err("Get config failed,exit!\n");
++            goto err_get_config;
++        }
++    }
++
++    pwm->clk = devm_clk_get_optional(&pdev->dev, "mod");
++    if (IS_ERR(pwm->clk))
++        return dev_err_probe(&pdev->dev, PTR_ERR(pwm->clk),
++                             "get mod clock failed\n");
++
++    pwm->bus_clk = devm_clk_get_optional(&pdev->dev, "bus");
++    if (IS_ERR(pwm->bus_clk))
++        return dev_err_probe(&pdev->dev, PTR_ERR(pwm->bus_clk),
++                             "get bus clock failed\n");
++
++    pwm->pwm_rst_clk = devm_reset_control_get_optional_shared(&pdev->dev, NULL);
++    if (IS_ERR(pwm->pwm_rst_clk))
++        return dev_err_probe(&pdev->dev, PTR_ERR(pwm->pwm_rst_clk),
++                             "get reset failed\n");
++
++    /* Deassert reset */
++    ret = reset_control_deassert(pwm->pwm_rst_clk);
++    if (ret)
++    {
++        dev_err(&pdev->dev, "cannot deassert reset control: %pe\n",
++                ERR_PTR(ret));
++        return ret;
++    }
++
++    ret = clk_prepare_enable(pwm->clk);
++    if (ret)
++    {
++        dev_err(&pdev->dev, "cannot prepare and enable clk %pe\n",
++                ERR_PTR(ret));
++        goto err_alloc;
++    }
++
++    ret = clk_prepare_enable(pwm->bus_clk);
++    if (ret)
++    {
++        dev_err(&pdev->dev, "cannot prepare and enable bus_clk %pe\n",
++                ERR_PTR(ret));
++        goto err_alloc;
++    }
++
++    return 0;
++
++err_get_config:
++err_alloc:
++    pwmchip_remove(&pwm->chip);
++err_add:
++    iounmap(pwm->base);
++err_iomap:
++    return ret;
++}
++
++static int sunxi_pwm_remove(struct platform_device *pdev)
++{
++    struct sunxi_pwm_chip *pwm = platform_get_drvdata(pdev);
++    clk_disable(pwm->clk);
++    clk_disable(pwm->bus_clk);
++    reset_control_assert(pwm->pwm_rst_clk);
++    pwmchip_remove(&pwm->chip);
++
++    return 0;
++}
++
++static int sunxi_pwm_suspend(struct platform_device *pdev, pm_message_t state)
++{
++    return 0;
++}
++
++static int sunxi_pwm_resume(struct platform_device *pdev)
++{
++    return 0;
++}
++
++#if !IS_ENABLED(CONFIG_OF)
++struct platform_device sunxi_pwm_device = {
++    .name = "sunxi_pwm",
++    .id = -1,
++};
++#else
++static const struct of_device_id sunxi_pwm_match[] = {
++    {
++        .compatible = "allwinner,sun50i-h616-pwm",
++    },
++    {},
++};
++MODULE_DEVICE_TABLE(of, sunxi_pwm_match);
++#endif
++
++static struct platform_driver sunxi_pwm_driver = {
++    .probe = sunxi_pwm_probe,
++    .remove = sunxi_pwm_remove,
++    .suspend = sunxi_pwm_suspend,
++    .resume = sunxi_pwm_resume,
++    .driver = {
++        .name = "sunxi_pwm",
++        .owner = THIS_MODULE,
++        .of_match_table = sunxi_pwm_match,
++    },
++};
++
++static int __init pwm_module_init(void)
++{
++    int ret = 0;
++
++#if !IS_ENABLED(CONFIG_OF)
++    ret = platform_device_register(&sunxi_pwm_device);
++#endif
++    if (ret == 0)
++    {
++        ret = platform_driver_register(&sunxi_pwm_driver);
++    }
++
++    return ret;
++}
++
++static void __exit pwm_module_exit(void)
++{
++    platform_driver_unregister(&sunxi_pwm_driver);
++#if !IS_ENABLED(CONFIG_OF)
++    platform_device_unregister(&sunxi_pwm_device);
++#endif
++}
++
++subsys_initcall(pwm_module_init);
++module_exit(pwm_module_exit);
++
++MODULE_AUTHOR("zengqi");
++MODULE_AUTHOR("liuli");
++MODULE_DESCRIPTION("pwm driver");
++MODULE_LICENSE("GPL");
++MODULE_ALIAS("platform:sunxi-pwm");
+diff --git a/drivers/pwm/pwm-sunxi-enhance.h b/drivers/pwm/pwm-sunxi-enhance.h
+new file mode 100644
+index 000000000..e25e10bf5
+--- /dev/null
++++ b/drivers/pwm/pwm-sunxi-enhance.h
+@@ -0,0 +1,60 @@
++/*
++ * drivers/pwm/pwm-sunxi-new.h
++ *
++ * Allwinnertech pulse-width-modulation controller driver
++ *
++ * Copyright (C) 2018 AllWinner
++ *
++ *
++ * This file is licensed under the terms of the GNU General Public
++ * License version 2. This program is licensed "as is" without any
++ * warranty of any kind, whether express or implied.
++ */
++#ifndef __PWM_SUNXI_NEW__H__
++#define __PWM_SUNXI_NEW__H__
++
++#define PWM_PIER	(0x0000)
++#define PWM_PISR	(0x0004)
++#define	PWM_CIER	(0x0010)
++#define	PWM_CISR	(0x0014)
++#define PWM_PCCR01	(0x0020)
++#define PWM_PCCR23	(0x0024)
++#define PWM_PCCR45	(0x0028)
++#define PWM_PCCR67	(0x002c)
++#define PWM_PDZCR01	(0x0030)
++#define PWM_PDZCR23	(0x0034)
++#define	PWM_PDZCR45	(0x0038)
++#define	PWM_PDZCR67	(0x003c)
++#define PWM_PER		(0x0040)
++#define PWM_CER		(0x0044)
++
++#define PWM_PCR_BASE	(0x0060 + 0x0000)
++#define PWM_PPR_BASE	(0x0060 + 0x0004)
++#define PWM_PCNTR_BASE	(0x0060 + 0x0008)
++#define PWM_CCR_BASE	(0x0060 + 0x000c)
++#define	PWM_CRLR_BASE	(0x0060 + 0x0010)
++#define PWM_CFLR_BASE	(0x0060 + 0x0014)
++#define PWM_PCCR8	(0x0300)
++
++#define PWM_ACT_STA_SHIFT	0x8
++#define PWM_ACT_STA_WIDTH	0x1
++#define PWM_CLK_SRC_SHIFT	0x7
++#define PWM_CLK_SRC_WIDTH	0x2
++#define PWM_DIV_M_SHIFT		0x0
++#define PWM_DIV_M_WIDTH		0x4
++#define PWM_PRESCAL_SHIFT	0x0
++#define PWM_PRESCAL_WIDTH	0x8
++#define PWM_ACT_CYCLES_SHIFT	0x0
++#define PWM_ACT_CYCLES_WIDTH	0x10
++#define PWM_PERIOD_CYCLES_SHIFT	0x10
++#define PWM_PERIOD_CYCLES_WIDTH	0x10
++#define PWM_DZ_EN_SHIFT		0x0
++#define PWM_DZ_EN_WIDTH		0x1
++#define PWM_PDZINTV_SHIFT	0x8
++#define PWM_PDZINTV_WIDTH	0x8
++#define PWM_BYPASS_WIDTH	0x1
++#define PWM_CLK_GATING_SHIFT	0x4
++#define PWM_CLK_GATING_WIDTH	0x1
++
++#endif
++
+diff --git a/drivers/regulator/axp20x-regulator.c b/drivers/regulator/axp20x-regulator.c
+index d260c442b..3087bc986 100644
+--- a/drivers/regulator/axp20x-regulator.c
++++ b/drivers/regulator/axp20x-regulator.c
+@@ -134,6 +134,11 @@
+ #define AXP22X_PWR_OUT_DLDO4_MASK	BIT_MASK(6)
+ #define AXP22X_PWR_OUT_ALDO3_MASK	BIT_MASK(7)
+ 
++#define AXP313A_DCDC1_NUM_VOLTAGES	107
++#define AXP313A_DCDC23_NUM_VOLTAGES	88
++#define AXP313A_DCDC_V_OUT_MASK		GENMASK(6, 0)
++#define AXP313A_LDO_V_OUT_MASK		GENMASK(4, 0)
++
+ #define AXP803_PWR_OUT_DCDC1_MASK	BIT_MASK(0)
+ #define AXP803_PWR_OUT_DCDC2_MASK	BIT_MASK(1)
+ #define AXP803_PWR_OUT_DCDC3_MASK	BIT_MASK(2)
+@@ -638,6 +643,48 @@ static const struct regulator_desc axp22x_drivevbus_regulator = {
+ 	.ops		= &axp20x_ops_sw,
+ };
+ 
++static const struct linear_range axp313a_dcdc1_ranges[] = {
++	REGULATOR_LINEAR_RANGE(500000,   0,  70,  10000),
++	REGULATOR_LINEAR_RANGE(1220000, 71,  87,  20000),
++	REGULATOR_LINEAR_RANGE(1600000, 88, 106, 100000),
++};
++
++static const struct linear_range axp313a_dcdc2_ranges[] = {
++	REGULATOR_LINEAR_RANGE(500000,   0, 70, 10000),
++	REGULATOR_LINEAR_RANGE(1220000, 71, 87, 20000),
++};
++
++/*
++ * This is deviating from the datasheet. The values here are taken from the
++ * BSP driver and have been confirmed by measurements.
++ */
++static const struct linear_range axp313a_dcdc3_ranges[] = {
++	REGULATOR_LINEAR_RANGE(500000,   0,  70, 10000),
++	REGULATOR_LINEAR_RANGE(1220000, 71, 102, 20000),
++};
++
++static const struct regulator_desc axp313a_regulators[] = {
++	AXP_DESC_RANGES(AXP313A, DCDC1, "dcdc1", "vin1",
++			axp313a_dcdc1_ranges, AXP313A_DCDC1_NUM_VOLTAGES,
++			AXP313A_DCDC1_CONRTOL, AXP313A_DCDC_V_OUT_MASK,
++			AXP313A_OUTPUT_CONTROL, BIT(0)),
++	AXP_DESC_RANGES(AXP313A, DCDC2, "dcdc2", "vin2",
++			axp313a_dcdc2_ranges, AXP313A_DCDC23_NUM_VOLTAGES,
++			AXP313A_DCDC2_CONRTOL, AXP313A_DCDC_V_OUT_MASK,
++			AXP313A_OUTPUT_CONTROL, BIT(1)),
++	AXP_DESC_RANGES(AXP313A, DCDC3, "dcdc3", "vin3",
++			axp313a_dcdc3_ranges, AXP313A_DCDC23_NUM_VOLTAGES,
++			AXP313A_DCDC3_CONRTOL, AXP313A_DCDC_V_OUT_MASK,
++			AXP313A_OUTPUT_CONTROL, BIT(2)),
++	AXP_DESC(AXP313A, LDO1, "ldo1", "vin1", 500, 3500, 100,
++		 AXP313A_ALDO1_CONRTOL, AXP313A_LDO_V_OUT_MASK,
++		 AXP313A_OUTPUT_CONTROL, BIT(3)),
++	AXP_DESC(AXP313A, LDO2, "ldo2", "vin1", 500, 3500, 100,
++		 AXP313A_DLDO1_CONRTOL, AXP313A_LDO_V_OUT_MASK,
++		 AXP313A_OUTPUT_CONTROL, BIT(4)),
++	AXP_DESC_FIXED(AXP313A, RTC_LDO, "rtc-ldo", "vin1", 1800),
++};
++
+ /* DCDC ranges shared with AXP813 */
+ static const struct linear_range axp803_dcdc234_ranges[] = {
+ 	REGULATOR_LINEAR_RANGE(500000,
+@@ -1040,6 +1087,15 @@ static int axp20x_set_dcdc_freq(struct platform_device *pdev, u32 dcdcfreq)
+ 		def = 3000;
+ 		step = 150;
+ 		break;
++	case AXP313A_ID:
++		/* The DCDC PWM frequency seems to be fixed to 3 MHz. */
++		if (dcdcfreq != 3000000) {
++			dev_err(&pdev->dev,
++				"DCDC frequency on AXP313a is fixed to 3 MHz.\n");
++			return -EINVAL;
++		}
++
++		return 0;
+ 	default:
+ 		dev_err(&pdev->dev,
+ 			"Setting DCDC frequency for unsupported AXP variant\n");
+@@ -1232,6 +1288,10 @@ static int axp20x_regulator_probe(struct platform_device *pdev)
+ 		drivevbus = of_property_read_bool(pdev->dev.parent->of_node,
+ 						  "x-powers,drive-vbus-en");
+ 		break;
++	case AXP313A_ID:
++		regulators = axp313a_regulators;
++		nregulators = AXP313A_REG_ID_MAX;
++		break;
+ 	case AXP803_ID:
+ 		regulators = axp803_regulators;
+ 		nregulators = AXP803_REG_ID_MAX;
+diff --git a/include/linux/mfd/ac200.h b/include/linux/mfd/ac200.h
+new file mode 100644
+index 000000000..8cd362d1c
+--- /dev/null
++++ b/include/linux/mfd/ac200.h
+@@ -0,0 +1,213 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
++/*
++ * AC200 register list
++ *
++ * Copyright (C) 2019 Jernej Skrabec <jernej.skrabec@siol.net>
++ */
++
++#ifndef __LINUX_MFD_AC200_H
++#define __LINUX_MFD_AC200_H
++
++#include <linux/regmap.h>
++#include <linux/clk.h>
++
++/* interface registers (can be accessed from any page) */
++#define AC200_TWI_CHANGE_TO_RSB		0x3E
++#define AC200_TWI_PAD_DELAY		0xC4
++#define AC200_TWI_REG_ADDR_H		0xFE
++
++/* General registers */
++#define AC200_SYS_VERSION		0x0000
++#define AC200_SYS_CONTROL		0x0002
++#define AC200_SYS_IRQ_ENABLE		0x0004
++#define AC200_SYS_IRQ_STATUS		0x0006
++#define AC200_SYS_CLK_CTL		0x0008
++#define AC200_SYS_DLDO_OSC_CTL		0x000A
++#define AC200_SYS_PLL_CTL0		0x000C
++#define AC200_SYS_PLL_CTL1		0x000E
++#define AC200_SYS_AUDIO_CTL0		0x0010
++#define AC200_SYS_AUDIO_CTL1		0x0012
++#define AC200_SYS_EPHY_CTL0		0x0014
++#define AC200_SYS_EPHY_CTL1		0x0016
++#define AC200_SYS_TVE_CTL0		0x0018
++#define AC200_SYS_TVE_CTL1		0x001A
++
++/* Audio Codec registers */
++#define AC200_AC_SYS_CLK_CTL		0x2000
++#define AC200_SYS_MOD_RST		0x2002
++#define AC200_SYS_SAMP_CTL		0x2004
++#define AC200_I2S_CTL			0x2100
++#define AC200_I2S_CLK			0x2102
++#define AC200_I2S_FMT0			0x2104
++#define AC200_I2S_FMT1			0x2108
++#define AC200_I2S_MIX_SRC		0x2114
++#define AC200_I2S_MIX_GAIN		0x2116
++#define AC200_I2S_DACDAT_DVC		0x2118
++#define AC200_I2S_ADCDAT_DVC		0x211A
++#define AC200_AC_DAC_DPC		0x2200
++#define AC200_AC_DAC_MIX_SRC		0x2202
++#define AC200_AC_DAC_MIX_GAIN		0x2204
++#define AC200_DACA_OMIXER_CTRL		0x2220
++#define AC200_OMIXER_SR			0x2222
++#define AC200_LINEOUT_CTRL		0x2224
++#define AC200_AC_ADC_DPC		0x2300
++#define AC200_MBIAS_CTRL		0x2310
++#define AC200_ADC_MIC_CTRL		0x2320
++#define AC200_ADCMIXER_SR		0x2322
++#define AC200_ANALOG_TUNING0		0x232A
++#define AC200_ANALOG_TUNING1		0x232C
++#define AC200_AC_AGC_SEL		0x2480
++#define AC200_ADC_DAPLCTRL		0x2500
++#define AC200_ADC_DAPRCTRL		0x2502
++#define AC200_ADC_DAPLSTA		0x2504
++#define AC200_ADC_DAPRSTA		0x2506
++#define AC200_ADC_DAPLTL		0x2508
++#define AC200_ADC_DAPRTL		0x250A
++#define AC200_ADC_DAPLHAC		0x250C
++#define AC200_ADC_DAPLLAC		0x250E
++#define AC200_ADC_DAPRHAC		0x2510
++#define AC200_ADC_DAPRLAC		0x2512
++#define AC200_ADC_DAPLDT		0x2514
++#define AC200_ADC_DAPLAT		0x2516
++#define AC200_ADC_DAPRDT		0x2518
++#define AC200_ADC_DAPRAT		0x251A
++#define AC200_ADC_DAPNTH		0x251C
++#define AC200_ADC_DAPLHNAC		0x251E
++#define AC200_ADC_DAPLLNAC		0x2520
++#define AC200_ADC_DAPRHNAC		0x2522
++#define AC200_ADC_DAPRLNAC		0x2524
++#define AC200_AC_DAPHHPFC		0x2526
++#define AC200_AC_DAPLHPFC		0x2528
++#define AC200_AC_DAPOPT			0x252A
++#define AC200_AC_DAC_DAPCTRL		0x3000
++#define AC200_AC_DRC_HHPFC		0x3002
++#define AC200_AC_DRC_LHPFC		0x3004
++#define AC200_AC_DRC_CTRL		0x3006
++#define AC200_AC_DRC_LPFHAT		0x3008
++#define AC200_AC_DRC_LPFLAT		0x300A
++#define AC200_AC_DRC_RPFHAT		0x300C
++#define AC200_AC_DRC_RPFLAT		0x300E
++#define AC200_AC_DRC_LPFHRT		0x3010
++#define AC200_AC_DRC_LPFLRT		0x3012
++#define AC200_AC_DRC_RPFHRT		0x3014
++#define AC200_AC_DRC_RPFLRT		0x3016
++#define AC200_AC_DRC_LRMSHAT		0x3018
++#define AC200_AC_DRC_LRMSLAT		0x301A
++#define AC200_AC_DRC_RRMSHAT		0x301C
++#define AC200_AC_DRC_RRMSLAT		0x301E
++#define AC200_AC_DRC_HCT		0x3020
++#define AC200_AC_DRC_LCT		0x3022
++#define AC200_AC_DRC_HKC		0x3024
++#define AC200_AC_DRC_LKC		0x3026
++#define AC200_AC_DRC_HOPC		0x3028
++#define AC200_AC_DRC_LOPC		0x302A
++#define AC200_AC_DRC_HLT		0x302C
++#define AC200_AC_DRC_LLT		0x302E
++#define AC200_AC_DRC_HKI		0x3030
++#define AC200_AC_DRC_LKI		0x3032
++#define AC200_AC_DRC_HOPL		0x3034
++#define AC200_AC_DRC_LOPL		0x3036
++#define AC200_AC_DRC_HET		0x3038
++#define AC200_AC_DRC_LET		0x303A
++#define AC200_AC_DRC_HKE		0x303C
++#define AC200_AC_DRC_LKE		0x303E
++#define AC200_AC_DRC_HOPE		0x3040
++#define AC200_AC_DRC_LOPE		0x3042
++#define AC200_AC_DRC_HKN		0x3044
++#define AC200_AC_DRC_LKN		0x3046
++#define AC200_AC_DRC_SFHAT		0x3048
++#define AC200_AC_DRC_SFLAT		0x304A
++#define AC200_AC_DRC_SFHRT		0x304C
++#define AC200_AC_DRC_SFLRT		0x304E
++#define AC200_AC_DRC_MXGHS		0x3050
++#define AC200_AC_DRC_MXGLS		0x3052
++#define AC200_AC_DRC_MNGHS		0x3054
++#define AC200_AC_DRC_MNGLS		0x3056
++#define AC200_AC_DRC_EPSHC		0x3058
++#define AC200_AC_DRC_EPSLC		0x305A
++#define AC200_AC_DRC_HPFHGAIN		0x305E
++#define AC200_AC_DRC_HPFLGAIN		0x3060
++#define AC200_AC_DRC_BISTCR		0x3100
++#define AC200_AC_DRC_BISTST		0x3102
++
++/* TVE registers */
++#define AC200_TVE_CTL0			0x4000
++#define AC200_TVE_CTL1			0x4002
++#define AC200_TVE_MOD0			0x4004
++#define AC200_TVE_MOD1			0x4006
++#define AC200_TVE_DAC_CFG0		0x4008
++#define AC200_TVE_DAC_CFG1		0x400A
++#define AC200_TVE_YC_DELAY		0x400C
++#define AC200_TVE_YC_FILTER		0x400E
++#define AC200_TVE_BURST_FRQ0		0x4010
++#define AC200_TVE_BURST_FRQ1		0x4012
++#define AC200_TVE_FRONT_PORCH		0x4014
++#define AC200_TVE_BACK_PORCH		0x4016
++#define AC200_TVE_TOTAL_LINE		0x401C
++#define AC200_TVE_FIRST_ACTIVE		0x401E
++#define AC200_TVE_BLACK_LEVEL		0x4020
++#define AC200_TVE_BLANK_LEVEL		0x4022
++#define AC200_TVE_PLUG_EN		0x4030
++#define AC200_TVE_PLUG_IRQ_EN		0x4032
++#define AC200_TVE_PLUG_IRQ_STA		0x4034
++#define AC200_TVE_PLUG_STA		0x4038
++#define AC200_TVE_PLUG_DEBOUNCE		0x4040
++#define AC200_TVE_DAC_TEST		0x4042
++#define AC200_TVE_PLUG_PULSE_LEVEL	0x40F4
++#define AC200_TVE_PLUG_PULSE_START	0x40F8
++#define AC200_TVE_PLUG_PULSE_PERIOD	0x40FA
++#define AC200_TVE_IF_CTL		0x5000
++#define AC200_TVE_IF_TIM0		0x5008
++#define AC200_TVE_IF_TIM1		0x500A
++#define AC200_TVE_IF_TIM2		0x500C
++#define AC200_TVE_IF_TIM3		0x500E
++#define AC200_TVE_IF_SYNC0		0x5010
++#define AC200_TVE_IF_SYNC1		0x5012
++#define AC200_TVE_IF_SYNC2		0x5014
++#define AC200_TVE_IF_TIM4		0x5016
++#define AC200_TVE_IF_STATUS		0x5018
++
++/* EPHY registers */
++#define AC200_EPHY_CTL			0x6000
++#define AC200_EPHY_BIST			0x6002
++
++/* eFuse registers (0x8000 - 0x9FFF, layout unknown) */
++
++/* RTC registers */
++#define AC200_LOSC_CTRL0		0xA000
++#define AC200_LOSC_CTRL1		0xA002
++#define AC200_LOSC_AUTO_SWT_STA		0xA004
++#define AC200_INTOSC_CLK_PRESCAL	0xA008
++#define AC200_RTC_YY_MM_DD0		0xA010
++#define AC200_RTC_YY_MM_DD1		0xA012
++#define AC200_RTC_HH_MM_SS0		0xA014
++#define AC200_RTC_HH_MM_SS1		0xA016
++#define AC200_ALARM0_CUR_VLU0		0xA024
++#define AC200_ALARM0_CUR_VLU1		0xA026
++#define AC200_ALARM0_ENABLE		0xA028
++#define AC200_ALARM0_IRQ_EN		0xA02C
++#define AC200_ALARM0_IRQ_STA		0xA030
++#define AC200_ALARM1_WK_HH_MM_SS0	0xA040
++#define AC200_ALARM1_WK_HH_MM_SS1	0xA042
++#define AC200_ALARM1_ENABLE		0xA044
++#define AC200_ALARM1_IRQ_EN		0xA048
++#define AC200_ALARM1_IRQ_STA		0xA04C
++#define AC200_ALARM_CONFIG		0xA050
++#define AC200_LOSC_OUT_GATING		0xA060
++#define AC200_GP_DATA(x)		(0xA100 + (x) * 2)
++#define AC200_RTC_DEB			0xA170
++#define AC200_GPL_HOLD_OUTPUT		0xA180
++#define AC200_VDD_RTC			0xA190
++#define AC200_IC_CHARA0			0xA1F0
++#define AC200_IC_CHARA1			0xA1F2
++
++struct ac200_dev {
++	struct clk			*clk;
++	struct regmap			*regmap;
++	struct regmap_irq_chip_data	*regmap_irqc;
++};
++
++int ac200_enable(void);
++uint16_t sun50i_ephy_calibrate_value(void);
++
++#endif /* __LINUX_MFD_AC200_H */
+diff --git a/include/linux/mfd/axp20x.h b/include/linux/mfd/axp20x.h
+index 9ab0e2fca..0e2c2ce19 100644
+--- a/include/linux/mfd/axp20x.h
++++ b/include/linux/mfd/axp20x.h
+@@ -17,6 +17,7 @@ enum axp20x_variants {
+ 	AXP221_ID,
+ 	AXP223_ID,
+ 	AXP288_ID,
++	AXP313A_ID,
+ 	AXP803_ID,
+ 	AXP806_ID,
+ 	AXP809_ID,
+@@ -91,6 +92,19 @@ enum axp20x_variants {
+ #define AXP22X_ALDO3_V_OUT		0x2a
+ #define AXP22X_CHRG_CTRL3		0x35
+ 
++#define AXP313A_ON_INDICATE		0x00
++#define AXP313A_OUTPUT_CONTROL		0x10
++#define AXP313A_DCDC1_CONRTOL		0x13
++#define AXP313A_DCDC2_CONRTOL		0x14
++#define AXP313A_DCDC3_CONRTOL		0x15
++#define AXP313A_ALDO1_CONRTOL		0x16
++#define AXP313A_DLDO1_CONRTOL		0x17
++#define AXP313A_POWER_STATUS		0x1a
++#define AXP313A_PWROK_SET		0x1b
++#define AXP313A_OUTPUT_MONITOR		0x1d
++#define AXP313A_IRQ_EN			0x20
++#define AXP313A_IRQ_STATE		0x21
++
+ #define AXP806_STARTUP_SRC		0x00
+ #define AXP806_CHIP_ID			0x03
+ #define AXP806_PWR_OUT_CTRL1		0x10
+@@ -322,6 +336,16 @@ enum {
+ 	AXP22X_REG_ID_MAX,
+ };
+ 
++enum {
++	AXP313A_DCDC1 = 0,
++	AXP313A_DCDC2,
++	AXP313A_DCDC3,
++	AXP313A_LDO1,
++	AXP313A_LDO2,
++	AXP313A_RTC_LDO,
++	AXP313A_REG_ID_MAX,
++};
++
+ enum {
+ 	AXP806_DCDCA = 0,
+ 	AXP806_DCDCB,
+@@ -545,6 +569,16 @@ enum axp288_irqs {
+ 	AXP288_IRQ_BC_USB_CHNG,
+ };
+ 
++enum axp313a_irqs {
++	AXP313A_IRQ_DIE_TEMP_HIGH,
++	AXP313A_IRQ_DCDC2_V_LOW = 2,
++	AXP313A_IRQ_DCDC3_V_LOW,
++	AXP313A_IRQ_PEK_LONG,
++	AXP313A_IRQ_PEK_SHORT,
++	AXP313A_IRQ_PEK_FAL_EDGE,
++	AXP313A_IRQ_PEK_RIS_EDGE,
++};
++
+ enum axp803_irqs {
+ 	AXP803_IRQ_ACIN_OVER_V = 1,
+ 	AXP803_IRQ_ACIN_PLUGIN,
+-- 
+2.34.1
+

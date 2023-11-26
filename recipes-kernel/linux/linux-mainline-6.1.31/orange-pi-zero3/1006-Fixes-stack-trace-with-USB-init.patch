@@ -1,0 +1,25 @@
+From 5586e579c11f1f0d6723e120655f95e23cc47f64 Mon Sep 17 00:00:00 2001
+From: Electric Worry <electricworry@users.noreply.github.com>
+Date: Tue, 14 Nov 2023 19:39:49 +0000
+Subject: [PATCH 06/19] Fixes stack trace with USB init.
+
+---
+ drivers/phy/allwinner/phy-sun4i-usb.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/phy/allwinner/phy-sun4i-usb.c b/drivers/phy/allwinner/phy-sun4i-usb.c
+index 5472db9e8..ee4a4f123 100644
+--- a/drivers/phy/allwinner/phy-sun4i-usb.c
++++ b/drivers/phy/allwinner/phy-sun4i-usb.c
+@@ -847,7 +847,7 @@ static int sun4i_usb_phy_probe(struct platform_device *pdev)
+ 		}
+ 
+ 		snprintf(name, sizeof(name), "usb%d_reset", i);
+-		phy->reset = devm_reset_control_get(dev, name);
++		phy->reset = devm_reset_control_get_shared(dev, name);
+ 		if (IS_ERR(phy->reset)) {
+ 			dev_err(dev, "failed to get reset %s\n", name);
+ 			return PTR_ERR(phy->reset);
+-- 
+2.34.1
+

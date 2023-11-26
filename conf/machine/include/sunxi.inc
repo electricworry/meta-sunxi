@@ -42,6 +42,7 @@ IMAGE_BOOT_FILES ?= "${KERNEL_IMAGETYPE} boot.scr"
 # ship fex file for sunxi kernel, devicetree file for mainline kernel
 IMAGE_BOOT_FILES += "${@bb.utils.contains('PREFERRED_PROVIDER_virtual/kernel', 'linux-sunxi', '${SUNXI_FEX_FILE}', '${KERNEL_DEVICETREE}', d)}"
 WKS_FILES ?= "sunxi-sdcard-image.wks.in"
+WKS_DISK ?= "mmcblk0"
 WKS_FILE_DEPENDS ?= "virtual/kernel u-boot"
 # in case of sunxi kernel, sunxi-board-fex must be built prior wic image assembly
 WKS_FILE_DEPENDS += " ${@bb.utils.contains('PREFERRED_PROVIDER_virtual/kernel', 'linux-sunxi', 'sunxi-board-fex', '', d)}"
