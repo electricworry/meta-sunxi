@@ -39,4 +39,5 @@ SRC_URI:append:orange-pi-zero3  = " \
         file://1017-allwinner-sun50i-h616-cpufreq.patch \
         file://1018-drivers-opp-core.c-_opp_set_regulators.patch \
         file://1019-drivers-clk-sunxi-ng-Audio-PLL-SDM-settings.patch \
+        file://1020-Enable-GPU.patch \
 "
