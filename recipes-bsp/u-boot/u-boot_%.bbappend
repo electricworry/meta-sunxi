@@ -24,6 +24,11 @@ SRC_URI:append:sunxi = " \
         file://boot.cmd \
 "
 
+# The orange-pi-zero3 needs a modified u-boot boot.cmd, based on UUID
+SRC_URI:append:orange-pi-zero3 = " \
+        file://boot-orange-pi-zero3.cmd \
+"
+
 UBOOT_ENV_SUFFIX:sunxi = "scr"
 UBOOT_ENV:sunxi = "boot"
 
@@ -34,4 +39,9 @@ do_compile:sun50i[depends] += "trusted-firmware-a:do_deploy"
 
 do_compile:append:sunxi() {
     ${B}/tools/mkimage -C none -A arm -T script -d ${WORKDIR}/boot.cmd ${WORKDIR}/${UBOOT_ENV_BINARY}
+}
+
+# Process the alternative u-boot boot.cmd, only for orange-pi-zero3
+do_compile:append:orange-pi-zero3() {
+    ${B}/tools/mkimage -C none -A arm -T script -d ${WORKDIR}/boot-orange-pi-zero3.cmd ${WORKDIR}/${UBOOT_ENV_BINARY}
 }
