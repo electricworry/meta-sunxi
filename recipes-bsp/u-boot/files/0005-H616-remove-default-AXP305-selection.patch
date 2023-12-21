@@ -1,15 +1,12 @@
 From: Andre Przywara <andre.przywara@arm.com>
-To: Jagan Teki <jagan@amarulasolutions.com>
-Cc: Vignesh R <vigneshr@ti.com>,
-	Jaehoon Chung <jh80.chung@samsung.com>,
-	Jernej Skrabec <jernej.skrabec@gmail.com>,
-	Mikhail Kalashnikov <iuncuim@gmail.com>,
-	Piotr Oniszczuk <piotr.oniszczuk@gmail.com>,
-	u-boot@lists.denx.de, linux-sunxi@lists.linux.dev
-Subject: [PATCH 2/3] sunxi: H616: remove default AXP305 selection
-Date: Tue, 14 Nov 2023 01:31:05 +0000	[thread overview]
-Message-ID: <20231114013106.31336-3-andre.przywara@arm.com> (raw)
-In-Reply-To: <20231114013106.31336-1-andre.przywara@arm.com>
+Subject: [PATCH v2 2/3] sunxi: H616: remove default AXP305 selection
+Date: Mon,  4 Dec 2023 00:59:53 +0000
+Message-Id: <20231204005954.13201-3-andre.przywara@arm.com>
+X-Mailer: git-send-email 2.35.8
+In-Reply-To: <20231204005954.13201-1-andre.przywara@arm.com>
+References: <20231204005954.13201-1-andre.przywara@arm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
 The original H616 devices released about three years ago were typically
 paired with an X-Powers AXP305 PMIC. Newer devices uses the smaller
@@ -21,6 +18,7 @@ and move the PMIC selection into the board defconfig files instead.
 Upstream-Status: Pending
 
 Signed-off-by: Andre Przywara <andre.przywara@arm.com>
+Reviewed-by: Jaehoon Chung <jh80.chung@samsung.com>
 ---
  configs/orangepi_zero2_defconfig | 1 +
  configs/x96_mate_defconfig       | 1 +
@@ -28,10 +26,10 @@ Signed-off-by: Andre Przywara <andre.przywara@arm.com>
  3 files changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/configs/orangepi_zero2_defconfig b/configs/orangepi_zero2_defconfig
-index f13735e91c7..127cf9e365a 100644
+index 50009e823cb..98aed846f1f 100644
 --- a/configs/orangepi_zero2_defconfig
 +++ b/configs/orangepi_zero2_defconfig
-@@ -19,6 +19,7 @@ CONFIG_SYS_I2C_SPEED=400000
+@@ -20,6 +20,7 @@ CONFIG_SYS_I2C_SPEED=400000
  CONFIG_SPI_FLASH_MACRONIX=y
  CONFIG_PHY_REALTEK=y
  CONFIG_SUN8I_EMAC=y
