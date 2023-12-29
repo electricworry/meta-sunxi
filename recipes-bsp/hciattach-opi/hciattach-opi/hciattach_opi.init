@@ -1,0 +1,22 @@
+#!/bin/bash
+
+### BEGIN INIT INFO
+# Provides:          hciattach_opi
+# Required-Start:    $local_fs
+# Required-Stop:     
+# Default-Start:     S
+# Default-Stop:
+# Short-Description: Orange Pi Bluetooth Enablement
+### END INIT INFO
+
+case $1 in
+    stop)
+        echo ""
+        ;;
+    start)
+        echo -n "starting wi-fi..."
+        @SBINDIR@/hciattach_opi.sh
+        echo ""
+        ;;
+esac
+exit 0
