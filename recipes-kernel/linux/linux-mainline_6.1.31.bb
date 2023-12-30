@@ -40,4 +40,5 @@ SRC_URI:append:orange-pi-zero3  = " \
         file://1018-drivers-opp-core.c-_opp_set_regulators.patch \
         file://1019-drivers-clk-sunxi-ng-Audio-PLL-SDM-settings.patch \
         file://1020-Enable-GPU.patch \
+        file://1021-alias-mmc-devices.patch \
 "
