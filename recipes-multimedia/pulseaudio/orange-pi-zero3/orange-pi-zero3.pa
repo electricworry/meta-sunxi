@@ -1,0 +1,3 @@
+load-module module-alsa-sink device=hw:0,0 sink_name=AudioCodec-Playback sink_properties="device.description='Audio Codec'"
+load-module module-alsa-sink device=hw:2,0 sink_name=HDMI-Playback sink_properties="device.description='HDMI Audio'"
+set-default-sink HDMI-Playback
