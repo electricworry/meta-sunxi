@@ -21,7 +21,7 @@ KERNEL_EXTRA_ARGS += "LOADADDR=${UBOOT_ENTRYPOINT}"
 
 S = "${WORKDIR}/linux-${PV}"
 
-SRC_URI = "git://github.com/torvalds/linux;branch=master;protocol=https \
+SRC_URI = "git://github.com/electricworry/linux-sunxi;branch=master;protocol=https \
 	   file://defconfig \
 "
 SRCREV = "${AUTOREV}"
