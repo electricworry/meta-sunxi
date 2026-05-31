@@ -26,7 +26,7 @@ SERIAL_CONSOLES ?= "115200;ttyS0"
 MACHINE_FEATURES ?= "alsa apm keyboard rtc serial screen usbgadget usbhost vfat"
 
 SUNXI_BOOT_SPACE ?= "40"
-IMAGE_BOOT_FILES ?= "${KERNEL_IMAGETYPE} boot.scr ${@d.getVar('KERNEL_DEVICETREE', '').split('/')[-1]}"
+IMAGE_BOOT_FILES ?= "${KERNEL_IMAGETYPE} boot.scr ${@d.getVar('KERNEL_DEVICETREE', '').split('/')[-1]};allwinner/${KERNEL_DEVICETREE}"
 
 WKS_FILES ?= "sunxi-sdcard-image.wks.in"
 WKS_FILE_DEPENDS ?= "virtual/kernel u-boot"
