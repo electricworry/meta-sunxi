@@ -1,0 +1,39 @@
+From 9f4cddc7c72cc2caf2ca89da59e007f3ceefab2f Mon Sep 17 00:00:00 2001
+From: Electric Worry <electricworry@users.noreply.github.com>
+Date: Tue, 16 Jun 2026 22:48:42 +0100
+Subject: [PATCH] pkg_resources fix
+
+---
+ tools/binman/control.py | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/tools/binman/control.py b/tools/binman/control.py
+index 2f00279232b..d06a5e233e9 100644
+--- a/tools/binman/control.py
++++ b/tools/binman/control.py
+@@ -8,12 +8,12 @@
+ from collections import OrderedDict
+ import glob
+ try:
+-    import importlib.resources
+-except ImportError:  # pragma: no cover
+-    # for Python 3.6
++    import importlib.resources as importlib_resources
++    # for Python 3.6, 3.7 and 3.8
++    importlib_resources.files
++except (ImportError, AttributeError): # pragma: no cover
+     import importlib_resources
+ import os
+-import pkg_resources
+ import re
+ 
+ import sys
+@@ -96,7 +96,7 @@ def _ReadMissingBlobHelp():
+             msg = ''
+         return tag, msg
+ 
+-    my_data = pkg_resources.resource_string(__name__, 'missing-blob-help')
++    my_data = importlib_resources.files(__package__).joinpath('missing-blob-help').read_bytes()
+     re_tag = re.compile('^([-a-z0-9]+):$')
+     result = {}
+     tag = None
