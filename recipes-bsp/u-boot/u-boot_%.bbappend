@@ -11,16 +11,7 @@ DEFAULT_PREFERENCE:sun7i = "1"
 DEFAULT_PREFERENCE:sun8i = "1"
 DEFAULT_PREFERENCE:sun50i = "1"
 
-SRCREV = "1fcf078f540cf1e3ce4803cdbe8ac7fdd1e2f4cc"
-
 SRC_URI:append:sunxi = " \
-        file://0001-nanopi_neo_air_defconfig-Enable-eMMC-support.patch \
-	file://0002-Added-nanopi-r1-board-support.patch \
-	file://0003-sunxi-H6-Enable-Ethernet-on-Orange-Pi-One-Plus.patch \
-        file://0004-Add-support-for-zBIT-ZB25VQ128.patch \
-        file://0005-H616-remove-default-AXP305-selection.patch \
-        file://0006-H616-Add-OrangePi-Zero-3-board-support.patch \
-        file://0007-The-bit-16-of-register-reg-0x03000000-must-be-zero-f.patch \
         file://boot.cmd \
 "
 
@@ -35,19 +26,3 @@ do_compile:sun50i[depends] += "trusted-firmware-a:do_deploy"
 do_compile:append:sunxi() {
     ${B}/tools/mkimage -C none -A arm -T script -d ${WORKDIR}/sources/boot.cmd ${WORKDIR}/${UBOOT_ENV_BINARY}
 }
-
-SRC_URI = "git://source.denx.de/u-boot/u-boot.git;protocol=https;branch=master \
-           file://CVE-2024-57254.patch \
-           file://CVE-2024-57255.patch \
-           file://CVE-2024-57256.patch \
-           file://CVE-2024-57257.patch \
-           file://CVE-2024-57258-1.patch \
-           file://CVE-2024-57258-2.patch \
-           file://CVE-2024-57258-3.patch \
-           file://CVE-2024-57259.patch \
-           file://CVE-2024-42040.patch \
-           file://0001-SWIG-fix.patch \
-           file://0002-pkg_resources-fix.patch \
-           file://qemuarm64.cfg \
-           file://boot.cmd \
-           "
