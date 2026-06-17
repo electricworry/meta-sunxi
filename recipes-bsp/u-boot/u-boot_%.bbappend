@@ -15,6 +15,11 @@ SRC_URI:append:sunxi = " \
         file://boot.cmd \
 "
 
+SRC_URI:append:orange-pi-zero3 = " \
+        file://boot.cmd \
+        file://0001-The-bitof-register-regmust-be-zero-for-the-THS-drive.patch \
+"
+
 UBOOT_ENV_SUFFIX:sunxi = "scr"
 UBOOT_ENV:sunxi = "boot"
 

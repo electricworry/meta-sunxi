@@ -1,0 +1,32 @@
+From 11ac55f23234c75aa684d80b24b62e9c1a1dd5e6 Mon Sep 17 00:00:00 2001
+From: Electric Worry <electricworry@users.noreply.github.com>
+Date: Wed, 17 Jun 2026 19:19:42 +0100
+Subject: [PATCH] The bitof register regmust be zero for the THS driver to work
+ properly in the kernel.
+
+Upstream-Status: Inappropriate
+---
+ board/sunxi/board.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/board/sunxi/board.c b/board/sunxi/board.c
+index 2929bc17f08..e1d7a0a2774 100644
+--- a/board/sunxi/board.c
++++ b/board/sunxi/board.c
+@@ -197,6 +197,16 @@ int board_init(void)
+ 
+ 	gd->bd->bi_boot_params = (PHYS_SDRAM_0 + 0x100);
+ 
++#if CONFIG_MACH_SUN50I_H616
++	/*
++	 * The bit[16] of register reg[0x03000000] must be zero for the THS
++	 * driver to work properly in the kernel. The BSP u-boot is putting
++	 * the whole register to zero so we are doing the same.
++	 */
++	writel(0x0, SUNXI_SRAMC_BASE);
++	writel(0x0, 0x07010254);
++#endif
++
+ #if !defined(CONFIG_ARM64) && !defined(CONFIG_MACH_SUNIV)
+ 	asm volatile("mrc p15, 0, %0, c0, c1, 1" : "=r"(id_pfr1));
+ 	debug("id_pfr1: 0x%08x\n", id_pfr1);
