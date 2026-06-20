@@ -49,3 +49,9 @@ IMAGE_BOOT_FILES ?= "${KERNEL_IMAGETYPE} boot.scr ${@d.getVar('KERNEL_DEVICETREE
 
 WKS_FILES ?= "sunxi-sdcard-image.wks.in"
 WKS_FILE_DEPENDS ?= "virtual/kernel u-boot"
+
+## Use mainline graphics instead of ARM binaries, because they work.
+MACHINEOVERRIDES .= ":use-mailine-graphics"
+
+## Don't use glvnd
+PACKAGECONFIG:remove:pn-mesa = "glvnd"
