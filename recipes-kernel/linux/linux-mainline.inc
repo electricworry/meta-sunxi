@@ -51,12 +51,13 @@ SRC_URI += "${@oe.utils.ifelse(d.getVar('KERNEL_DTB_PREFIX') == '1', d.getVar('S
 SOURCES_K65 = " \
 "
 
-SOURCES = " \
-	file://0001-dts-orange-pi-zero-Add-wifi-support.patch \
-	file://0002-dts-nanopi-neo-air-add-camera.patch \
-	file://0003-dts-allwinner-bananapi-m2-zreo-Enforce-consistent-MM.patch \
-	file://0004-dts-allwinner-bananapi-m64-Consistent-nodes-for-mmc-devices.patch \
-"
+SOURCES = ""
+# SOURCES = " \
+# 	file://0001-dts-orange-pi-zero-Add-wifi-support.patch \
+# 	file://0002-dts-nanopi-neo-air-add-camera.patch \
+# 	file://0003-dts-allwinner-bananapi-m2-zreo-Enforce-consistent-MM.patch \
+# 	file://0004-dts-allwinner-bananapi-m64-Consistent-nodes-for-mmc-devices.patch \
+# "
 
 SRC_URI:append:use-mailine-graphics = " file://drm.cfg"
 SRC_URI:append:bananapi = " file://axp20x.cfg"
