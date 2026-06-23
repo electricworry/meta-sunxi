@@ -23,6 +23,7 @@ SRC_URI:append:orange-pi-zero3  = " \
     file://0011-arm64-dts-allwinner-h616-Add-display-pipeline.patch \
     file://0012-drm-sun4i-Add-H616-TCON-TV-support.patch \
     file://0013-arm64-dts-allwinner-h616-Enable-HDMI-on-several-boar.patch \
+    file://666-mali.patch \
 "
 
 ERROR_QA:remove = "patch-status-core patch-status-noncore patch-status obsolete-license"
